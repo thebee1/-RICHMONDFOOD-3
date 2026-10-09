@@ -1,0 +1,1757 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="RICHMOND FOOD — Commandes et livraison à Abidjan">
+<title>RICHMOND FOOD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0; min-height: 100vh;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: #FAF7F0; color: #1E2B22;
+}
+body[data-view="cook"] { overflow: hidden; }
+.view { display: none; }
+.view.active { display: block; }
+#view-auth.view.active { display: grid; place-items: center; }
+#view-cook.view.active { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+/* AUTH */
+#view-auth { min-height: 100vh; padding: 24px; background: linear-gradient(135deg, #FAF7F0, #E8D5A8); color: #1E2B22; }
+#view-auth .card { width: min(100%, 480px); padding: 34px; background: #fff; border: 1px solid #E7E0D2; border-radius: 18px; box-shadow: 0 14px 45px rgba(30,43,34,0.13); }
+#view-auth .brand { margin: 0 0 6px; text-align: center; font-size: 1.45rem; letter-spacing: 2px; }
+#view-auth .brand span { color: #C89B3C; }
+#view-auth .intro { margin: 0 0 24px; text-align: center; color: #7A7A72; }
+#view-auth .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 22px; padding: 5px; background: #FAF7F0; border-radius: 10px; }
+#view-auth .tab { padding: 10px; border: 0; border-radius: 7px; background: transparent; color: #1E2B22; font: inherit; cursor: pointer; }
+#view-auth .tab.active { background: #1E2B22; color: #fff; }
+#view-auth h1 { margin: 0 0 18px; font-size: 1.45rem; font-weight: 700; }
+#view-auth .field { margin-bottom: 15px; }
+#view-auth label { display: block; margin-bottom: 6px; font-weight: 600; }
+#view-auth input, #view-auth select { width: 100%; min-height: 46px; padding: 10px 12px; border: 1px solid #E7E0D2; border-radius: 8px; background: #fff; color: #1E2B22; font: inherit; }
+#view-auth input:focus, #view-auth select:focus { outline: 2px solid #C89B3C66; border-color: #C89B3C; }
+#view-auth .submit { width: 100%; min-height: 48px; margin-top: 7px; border: 0; border-radius: 8px; background: #2E5B3F; color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
+#view-auth .submit:disabled { opacity: .65; cursor: wait; }
+#view-auth .message { display: none; margin: 14px 0 0; padding: 12px; border-radius: 8px; }
+#view-auth .message.show { display: block; }
+#view-auth .message.error { background: #FCEAE7; color: #8C3B2E; }
+#view-auth .message.success { background: #EAF3EC; color: #2E5B3F; }
+#view-auth .fine-print { margin: 18px 0 0; text-align: center; color: #7A7A72; font-size: .82rem; }
+@media (max-width: 480px) { #view-auth .card { padding: 25px 20px; } }
+
+/* CLIENT */
+#view-client { background: #FAF7F0; color: #1E2B22; line-height: 1.6; overflow-x: hidden; font-size: 16px; }
+#view-client * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-weight: 500; letter-spacing: 0; }
+:root { --bg:#FAF7F0; --card:#FFFFFF; --dark:#1E2B22; --green:#2E5B3F; --gold:#C89B3C; --gold-light:#E8D5A8; --gray:#7A7A72; --line:#E7E0D2; --shadow:0 2px 12px rgba(30,43,34,0.08); --radius:14px; }
+#view-client h1, #view-client h2, #view-client h3 { letter-spacing: -0.02em; font-weight: 700; }
+#view-client #scroll-progress { position: fixed; top: 0; left: 0; height: 4px; width: 0%; background: linear-gradient(90deg, var(--green), var(--gold), var(--gold-light)); z-index: 9999; transition: width 0.1s ease-out; box-shadow: 0 0 10px rgba(200,155,60,0.6); }
+#view-client .reveal { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.22,1,0.36,1); }
+#view-client .reveal.visible { opacity: 1; transform: translateY(0); }
+@keyframes c-fadeUp { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
+@keyframes c-heroReveal { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+@keyframes c-modalReveal { from { opacity:0; transform:translateY(18px) scale(0.98); } to { opacity:1; transform:translateY(0) scale(1); } }
+@keyframes c-bounceIn { 0% { transform:scale(0); opacity:0; } 50% { transform:scale(1.2); opacity:1; } 100% { transform:scale(1); opacity:1; } }
+@keyframes c-rotate360 { from { transform:rotate(0); } to { transform:rotate(360deg); } }
+@keyframes c-pulseRing { 0% { transform:scale(0.95); box-shadow:0 0 0 0 rgba(37,211,102,0.7); } 70% { transform:scale(1); box-shadow:0 0 0 18px rgba(37,211,102,0); } 100% { transform:scale(0.95); box-shadow:0 0 0 0 rgba(37,211,102,0); } }
+@keyframes c-shake { 0%,100% { transform:translateX(0); } 25% { transform:translateX(-5px); } 75% { transform:translateX(5px); } }
+@keyframes c-fadeIn { from { opacity:0; } to { opacity:1; } }
+#view-client .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+#view-client header { background: var(--dark); color: var(--bg); position: sticky; top: 0; z-index: 100; border-bottom: 3px solid var(--gold); transition: box-shadow 0.3s ease; }
+#view-client header.scrolled { box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+#view-client .nav { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; }
+#view-client .nav-actions { display: flex; align-items: center; gap: 10px; }
+#view-client .account-label { color: var(--gold-light); font-size: 0.85rem; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#view-client .logo { display: flex; align-items: center; gap: 10px; font-size: 1.5rem; font-weight: 800; letter-spacing: 2px; cursor: pointer; }
+#view-client .logo span { color: var(--gold); }
+#view-client .cart-btn { background: transparent; color: var(--gold); border: 2px solid var(--gold); padding: 8px 18px; border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: all 0.25s; font-family: inherit; font-size: 0.95rem; }
+#view-client .cart-btn:hover { background: var(--gold); color: var(--dark); }
+#view-client .cart-count { background: var(--gold); color: var(--dark); border-radius: 6px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; }
+#view-client .cart-count.bump { animation: c-bounceIn 0.5s ease; }
+#view-client .hero { background-color: var(--dark); background-image: linear-gradient(90deg, rgba(30,43,34,0.94), rgba(30,43,34,0.68)), url('https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=1800&q=88'); background-position: center; background-size: cover; color: var(--bg); padding: 90px 24px 100px; text-align: center; position: relative; overflow: hidden; }
+#view-client .hero::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 50% 120%, rgba(200,155,60,0.35), transparent 65%); pointer-events: none; }
+#view-client .hero h1 { font-size: 3.5rem; margin-bottom: 18px; color: var(--gold-light); font-weight: 800; letter-spacing: 3px; position: relative; z-index: 1; animation: c-heroReveal 0.7s ease both; }
+#view-client .hero p { font-size: 1.15rem; margin-bottom: 35px; color: rgba(250,247,240,0.9); font-weight: 400; position: relative; z-index: 1; }
+#view-client .hero-buttons { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; position: relative; z-index: 1; }
+#view-client .btn-primary, #view-client .btn-secondary { padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 1rem; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; border: none; cursor: pointer; font-family: inherit; }
+#view-client .btn-primary { background: var(--gold); color: var(--dark); }
+#view-client .btn-secondary { background: transparent; color: var(--gold-light); border: 2px solid var(--gold-light); }
+#view-client .btn-primary:hover { background: var(--gold-light); transform: translateY(-3px); }
+#view-client .btn-secondary:hover { background: var(--gold-light); color: var(--dark); }
+#view-client .info-bar { background: var(--card); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 18px 20px; display: flex; justify-content: center; gap: 45px; flex-wrap: wrap; font-size: 0.95rem; }
+#view-client .info-item { display: flex; align-items: center; gap: 8px; color: var(--dark); font-weight: 500; }
+#view-client .menu-section { padding: 70px 0; }
+#view-client .section-title { text-align: center; font-size: 2.4rem; margin-bottom: 12px; font-weight: 700; }
+#view-client .section-subtitle { text-align: center; color: var(--gray); margin-bottom: 45px; font-size: 1.05rem; font-weight: 400; }
+#view-client .categories { display: flex; justify-content: center; gap: 12px; margin-bottom: 35px; flex-wrap: wrap; }
+#view-client .cat-btn { padding: 10px 22px; border: 1px solid var(--line); background: var(--card); color: var(--dark); border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.25s; font-family: inherit; font-size: 0.92rem; }
+#view-client .cat-btn.active { background: var(--green); color: var(--bg); border-color: var(--green); }
+#view-client .menu-tools { display: flex; gap: 12px; margin: 0 auto 26px; max-width: 820px; flex-wrap: wrap; align-items: center; }
+#view-client .search-box, #view-client .sort-select { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 12px 15px; font-size: 0.95rem; color: var(--dark); font-family: inherit; font-weight: 500; }
+#view-client .search-box { flex: 1 1 280px; min-width: 0; }
+#view-client .sort-select { flex: 0 1 220px; cursor: pointer; }
+#view-client .favorites-toggle { border: 1px solid var(--green); background: var(--card); color: var(--green); border-radius: 8px; padding: 12px 18px; cursor: pointer; font-weight: 600; font-family: inherit; font-size: 0.95rem; }
+#view-client .favorites-toggle.active { background: var(--green); color: var(--bg); }
+#view-client .results-note { color: var(--gray); font-size: 0.9rem; margin: -10px 0 20px; text-align: center; }
+#view-client .dishes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 28px; }
+#view-client .dish-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); transition: all 0.35s ease; display: flex; flex-direction: column; cursor: pointer; position: relative; animation: c-fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) both; }
+#view-client .dish-card:hover { transform: translateY(-10px); border-color: var(--gold); box-shadow: 0 20px 40px rgba(30,43,34,0.2); }
+#view-client .dish-image { height: 190px; background: var(--dark); display: flex; align-items: center; justify-content: center; border-bottom: 3px solid var(--gold); overflow: hidden; }
+#view-client .dish-image img { width: 100%; height: 100%; display: block; object-fit: cover; transition: transform 0.7s; }
+#view-client .dish-card:hover .dish-image img { transform: scale(1.12); }
+#view-client .dish-info { padding: 20px; flex: 1; display: flex; flex-direction: column; }
+#view-client .dish-name { font-size: 1.15rem; font-weight: 700; margin-bottom: 4px; }
+#view-client .dish-desc { color: var(--gray); font-size: 0.9rem; margin-bottom: 12px; flex: 1; font-weight: 400; line-height: 1.5; }
+#view-client .dish-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 15px; border-top: 1px solid var(--line); }
+#view-client .dish-price { font-size: 1.25rem; font-weight: 700; color: var(--green); }
+#view-client .dish-actions { display: flex; align-items: center; gap: 8px; }
+#view-client .favorite-btn { width: 38px; height: 38px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); cursor: pointer; font-size: 1.05rem; color: var(--gray); font-family: inherit; }
+#view-client .favorite-btn.active { color: var(--gold); background: #FCF5E3; border-color: var(--gold); }
+#view-client .btn-add { background: var(--dark); color: var(--gold-light); border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: 600; font-family: inherit; font-size: 0.9rem; }
+#view-client .btn-add:hover { background: var(--green); color: var(--bg); }
+#view-client .badge { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; margin-right: 5px; text-transform: uppercase; }
+#view-client .badge-hot { background: #FBEDE8; color: #B0442B; }
+#view-client .badge-new { background: #EAF3EC; color: var(--green); }
+#view-client .badge-veg { background: #F3EFE2; color: #8A6D1F; }
+#view-client .modal { display: none; position: fixed; inset: 0; background: rgba(30,43,34,0.75); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+#view-client .modal.active { display: flex; animation: c-fadeIn 0.3s ease; }
+#view-client .modal.active .modal-content { animation: c-modalReveal 0.35s cubic-bezier(0.22,1,0.36,1) both; }
+#view-client .modal-content { background: var(--bg); border-radius: var(--radius); max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 32px; border-top: 4px solid var(--gold); box-shadow: 0 25px 60px rgba(0,0,0,0.3); }
+#view-client .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--line); }
+#view-client .modal-title { font-size: 1.4rem; font-weight: 700; }
+#view-client .close-btn { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--gray); font-family: inherit; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+#view-client .close-btn:hover { background: var(--line); }
+#view-client .dish-detail-image { width: 100%; height: 260px; object-fit: cover; border-radius: 10px; background: var(--dark); display: block; }
+#view-client .dish-detail-body { padding-top: 20px; }
+#view-client .dish-detail-body h3 { font-size: 1.6rem; margin-bottom: 8px; font-weight: 700; }
+#view-client .dish-detail-description { color: var(--gray); margin: 12px 0 18px; font-size: 0.95rem; font-weight: 400; line-height: 1.6; }
+#view-client .dish-detail-meta { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 20px; }
+#view-client .dish-detail-category { color: var(--gray); font-size: 0.9rem; }
+#view-client .dish-detail-price { color: var(--green); font-size: 1.4rem; font-weight: 700; white-space: nowrap; }
+#view-client .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid var(--line); }
+#view-client .cart-item-info { flex: 1; }
+#view-client .cart-item-name { font-weight: 600; margin-bottom: 4px; font-size: 1rem; }
+#view-client .cart-item-price { color: var(--green); font-weight: 700; font-size: 0.95rem; }
+#view-client .qty-controls { display: flex; align-items: center; gap: 10px; }
+#view-client .qty-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--dark); font-weight: 700; cursor: pointer; font-family: inherit; font-size: 1rem; }
+#view-client .qty-btn:hover { background: var(--green); color: var(--bg); border-color: var(--green); }
+#view-client .qty-display { font-weight: 700; min-width: 22px; text-align: center; font-size: 1rem; }
+#view-client .remove-btn { background: none; border: none; color: #B0442B; cursor: pointer; font-size: 0.85rem; font-weight: 700; font-family: inherit; }
+#view-client .cart-total { display: flex; justify-content: space-between; font-size: 1.15rem; font-weight: 700; margin: 25px 0; padding-top: 20px; border-top: 2px solid var(--gold); }
+#view-client .empty-cart { text-align: center; padding: 40px 0; color: var(--gray); font-size: 1rem; font-weight: 400; }
+#view-client .form-group { margin-bottom: 15px; }
+#view-client .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.9rem; }
+#view-client .form-group input, #view-client .form-group textarea, #view-client .form-group select { width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 8px; font-size: 0.95rem; background: var(--card); font-family: inherit; color: var(--dark); font-weight: 500; }
+#view-client .form-group input:focus, #view-client .form-group textarea:focus, #view-client .form-group select:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 4px rgba(200,155,60,0.15); }
+#view-client .form-group input.input-error { border-color: #B0442B; background: #FDF5F3; animation: c-shake 0.4s ease; }
+#view-client .form-hint { font-size: 0.8rem; color: var(--gray); margin-top: 4px; font-weight: 400; }
+#view-client .form-hint.error { color: #B0442B; font-weight: 600; }
+#view-client .btn-submit { width: 100%; background: var(--green); color: var(--bg); border: none; padding: 14px; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 20px; font-family: inherit; }
+#view-client .btn-submit:hover { background: var(--dark); color: var(--gold-light); }
+#view-client .btn-submit:disabled { background: var(--gray); cursor: not-allowed; color: #fff; }
+#view-client .error-box { background: #FBEDE8; color: #B0442B; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #B0442B; font-size: 0.85rem; word-break: break-word; }
+#view-client .error-box strong { display: block; margin-bottom: 5px; font-size: 0.95rem; font-weight: 700; }
+#view-client .btn-retry { width: 100%; background: var(--gold); color: var(--dark); border: none; padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 10px; font-family: inherit; font-size: 0.95rem; }
+#view-client .btn-wa-fallback { width: 100%; background: #25D366; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 10px; font-family: inherit; font-size: 0.95rem; }
+#view-client footer { background: var(--dark); color: rgba(250,247,240,0.85); padding: 50px 24px 20px; margin-top: 70px; }
+#view-client .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto 30px; }
+#view-client .footer-col h4 { margin-bottom: 15px; color: var(--gold); font-size: 1.05rem; font-weight: 700; }
+#view-client .footer-col p, #view-client .footer-col a { color: rgba(250,247,240,0.75); text-decoration: none; display: block; margin-bottom: 8px; font-size: 0.9rem; }
+#view-client .footer-col a:hover { color: var(--gold); }
+#view-client .footer-bottom { text-align: center; padding-top: 20px; border-top: 1px solid rgba(250,247,240,0.15); color: rgba(250,247,240,0.5); font-size: 0.85rem; }
+#view-client .whatsapp-float { position: fixed; bottom: 30px; right: 30px; background: #25D366; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; font-weight: 700; text-decoration: none; box-shadow: 0 4px 16px rgba(37,211,102,0.4); z-index: 99; animation: c-pulseRing 2.5s ease-in-out infinite; }
+#view-client .back-to-top { position: fixed; bottom: 100px; right: 30px; background: var(--dark); color: var(--gold); width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--gold); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem; opacity: 0; visibility: hidden; transition: all 0.3s; z-index: 98; }
+#view-client .back-to-top.visible { opacity: 1; visibility: visible; }
+#view-client .notification-toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--dark); color: #FAF7F0; padding: 14px 28px; border-radius: 8px; font-weight: 600; z-index: 2000; border-left: 4px solid var(--gold); font-size: 0.95rem; opacity: 0; transition: all 0.4s; pointer-events: none; }
+#view-client .notification-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+#view-client #page-loader { position: fixed; inset: 0; background: var(--bg); z-index: 10000; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 20px; transition: opacity 0.5s ease, visibility 0.5s ease; }
+#view-client #page-loader.hidden { opacity: 0; visibility: hidden; }
+#view-client .loader-logo { font-size: 2rem; font-weight: 800; color: var(--dark); letter-spacing: 4px; }
+#view-client .loader-logo span { color: var(--gold); }
+#view-client .loader-spinner { width: 50px; height: 50px; border: 4px solid var(--line); border-top-color: var(--gold); border-radius: 50%; animation: c-rotate360 0.8s linear infinite; }
+@media (max-width: 768px) {
+  #view-client .container { padding-left: 16px; padding-right: 16px; }
+  #view-client .nav { padding: 12px 16px; }
+  #view-client .account-label { display: none; }
+  #view-client .logo { font-size: 1.2rem; }
+  #view-client .hero h1 { font-size: 2.4rem; }
+  #view-client .hero { padding: 56px 16px 64px; }
+  #view-client .section-title { font-size: 1.8rem; }
+  #view-client .dishes-grid { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+  #view-client .modal-content { padding: 20px 16px; }
+}
+
+/* COOK */
+#view-cook { background: #FAF7F0; color: #1E2B22; font-family: 'Georgia', 'Times New Roman', serif; }
+#view-cook :root { --bg:#FAF7F0; --card:#FFF; --dark:#1E2B22; --green:#2E5B3F; --gold:#C89B3C; --gold-light:#E8D5A8; --gray:#7A7A72; --line:#E7E0D2; --burgundy:#8C3B2E; --blue:#3D5A6C; }
+#view-cook header { background: var(--dark); color: var(--bg); border-bottom: 3px solid var(--gold); height: 75px; padding: 0 25px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; z-index: 100; }
+#view-cook .logo { display: flex; align-items: center; gap: 12px; }
+#view-cook .logo-icon { width: 50px; height: 50px; background: var(--green); border: 2px solid var(--gold); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; }
+#view-cook .logo-text { font-size: 1.3rem; font-weight: 700; line-height: 1.1; letter-spacing: 2px; }
+#view-cook .logo-text span { color: var(--gold); }
+#view-cook .logo-sub { font-size: 0.72rem; color: var(--gold-light); font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; }
+#view-cook .header-center { display: flex; gap: 15px; align-items: center; }
+#view-cook .stat-badge { display: flex; align-items: center; gap: 10px; padding: 8px 18px; border-radius: 8px; background: rgba(200,155,60,0.12); border: 1px solid rgba(200,155,60,0.35); }
+#view-cook .stat-badge.preparing { background: rgba(200,155,60,0.18); border-color: var(--gold); }
+#view-cook .stat-badge.ready { background: rgba(46,91,63,0.25); border-color: var(--green); }
+#view-cook .stat-badge .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--gold); animation: k-pulse 2s infinite; }
+#view-cook .stat-badge.preparing .dot { background: var(--gold-light); }
+#view-cook .stat-badge.ready .dot { background: #7BC496; }
+@keyframes k-pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+#view-cook .stat-badge .num { font-weight: 700; font-size: 1.2rem; color: var(--gold); }
+#view-cook .stat-badge.preparing .num { color: var(--gold-light); }
+#view-cook .stat-badge.ready .num { color: #7BC496; }
+#view-cook .stat-badge .label { font-size: 0.82rem; color: var(--bg); opacity: 0.75; font-weight: 600; }
+#view-cook .header-right { display: flex; gap: 12px; align-items: center; }
+#view-cook .cook-account { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#view-cook .clock { font-family: 'Consolas', monospace; font-size: 1.25rem; font-weight: 700; color: var(--gold-light); padding: 8px 15px; background: rgba(250,247,240,0.06); border-radius: 8px; border: 1px solid rgba(200,155,60,0.35); }
+#view-cook .icon-btn { width: 45px; height: 45px; border: 1px solid rgba(200,155,60,0.35); background: transparent; border-radius: 8px; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; color: var(--gold-light); }
+#view-cook .icon-btn:hover { border-color: var(--gold); background: var(--gold); color: var(--dark); }
+#view-cook .status-indicator { display: flex; align-items: center; gap: 6px; padding: 8px 15px; background: rgba(46,91,63,0.3); border: 1px solid #7BC496; border-radius: 50px; font-size: 0.78rem; font-weight: 700; color: #7BC496; text-transform: uppercase; letter-spacing: 1px; }
+#view-cook .status-indicator.offline { background: rgba(140,59,46,0.3); border-color: #D98D7E; color: #D98D7E; }
+#view-cook .status-indicator .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; animation: k-pulse 2s infinite; }
+#view-cook .info-bar { background: var(--card); color: var(--dark); border-bottom: 1px solid var(--line); height: 45px; padding: 0 25px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; flex-shrink: 0; }
+#view-cook .info-bar .left { display: flex; gap: 25px; }
+#view-cook .info-bar .right { display: flex; gap: 15px; color: var(--gray); }
+#view-cook .info-bar #refreshStatus { font-weight: 700; color: var(--green); }
+#view-cook .board { flex: 1; padding: 15px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; overflow: hidden; min-height: 0; }
+#view-cook .column { background: var(--card); border-radius: 12px; border: 1px solid var(--line); display: flex; flex-direction: column; overflow: hidden; border-top: 4px solid; min-height: 0; max-height: 100%; height: 100%; }
+#view-cook .column.new { border-top-color: var(--burgundy); }
+#view-cook .column.preparing { border-top-color: var(--gold); }
+#view-cook .column.ready { border-top-color: var(--green); }
+#view-cook .column.delivering { border-top-color: var(--blue); }
+#view-cook .column-header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); flex-shrink: 0; }
+#view-cook .column-title { display: flex; align-items: center; gap: 10px; }
+#view-cook .column-icon { font-size: 1.4rem; }
+#view-cook .column-title-text { font-size: 0.85rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+#view-cook .column.new .column-title-text { color: var(--burgundy); }
+#view-cook .column.preparing .column-title-text { color: var(--gold); }
+#view-cook .column.ready .column-title-text { color: var(--green); }
+#view-cook .column.delivering .column-title-text { color: var(--blue); }
+#view-cook .column-count { background: var(--bg); color: var(--dark); padding: 4px 14px; border-radius: 8px; font-weight: 700; font-size: 0.9rem; }
+#view-cook .column.new .column-count { background: #F7E9E5; color: var(--burgundy); }
+#view-cook .column.preparing .column-count { background: #FCF5E3; color: var(--gold); }
+#view-cook .column.ready .column-count { background: #EAF3EC; color: var(--green); }
+#view-cook .column.delivering .column-count { background: #E8EEF2; color: var(--blue); }
+#view-cook .column-body { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+#view-cook .column-body::-webkit-scrollbar { width: 10px; }
+#view-cook .column-body::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 5px; }
+#view-cook .scroll-hint { text-align: center; padding: 5px; color: var(--gray); font-size: 0.75rem; font-weight: 600; flex-shrink: 0; border-top: 1px dashed var(--line); background: var(--bg); }
+#view-cook .order-card { background: var(--card); border-radius: 10px; border: 1px solid var(--line); display: flex; flex-direction: column; position: relative; overflow: hidden; flex-shrink: 0; }
+#view-cook .order-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; }
+#view-cook .order-card.new::before { background: var(--burgundy); }
+#view-cook .order-card.preparing::before { background: var(--gold); }
+#view-cook .order-card.ready::before { background: var(--green); }
+#view-cook .order-card.delivering::before { background: var(--blue); }
+#view-cook .order-card.urgent { border-color: var(--burgundy); }
+#view-cook .order-content { padding: 12px 12px 0 12px; overflow-y: auto; max-height: 280px; flex: 1 1 auto; }
+#view-cook .order-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px dashed var(--line); }
+#view-cook .order-number { font-size: 1.1rem; font-weight: 700; color: var(--dark); }
+#view-cook .order-source { font-size: 0.65rem; padding: 3px 8px; border-radius: 6px; font-weight: 700; text-transform: uppercase; }
+#view-cook .source-website { background: #E8EEF2; color: var(--blue); }
+#view-cook .source-whatsapp { background: #EAF3EC; color: var(--green); }
+#view-cook .order-time { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--gray); margin-bottom: 8px; font-weight: 600; }
+#view-cook .order-time.urgent { color: var(--burgundy); font-weight: 700; }
+#view-cook .order-customer { display: flex; align-items: center; gap: 6px; padding: 6px 10px; background: var(--bg); border-radius: 8px; margin-bottom: 8px; font-size: 0.85rem; font-weight: 700; }
+#view-cook .order-contact { font-size: 0.75rem; color: var(--gray); margin-bottom: 8px; line-height: 1.4; }
+#view-cook .order-contact strong { color: var(--dark); }
+#view-cook .order-items { background: var(--bg); border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; border: 1px solid var(--line); }
+#view-cook .order-item { display: flex; justify-content: space-between; padding: 4px 0; font-size: 0.85rem; }
+#view-cook .order-item:not(:last-child) { border-bottom: 1px solid var(--line); }
+#view-cook .item-left { display: flex; gap: 8px; align-items: flex-start; flex: 1; }
+#view-cook .item-qty { background: var(--green); color: var(--bg); font-weight: 700; padding: 1px 8px; border-radius: 6px; font-size: 0.75rem; min-width: 28px; text-align: center; }
+#view-cook .item-name { font-weight: 600; color: var(--dark); flex: 1; }
+#view-cook .order-total { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-top: 2px solid var(--gold-light); margin-bottom: 8px; }
+#view-cook .order-total-label { font-size: 0.75rem; color: var(--gray); font-weight: 700; text-transform: uppercase; }
+#view-cook .order-total-value { font-size: 1.05rem; font-weight: 700; color: var(--green); }
+#view-cook .order-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+#view-cook .meta-tag { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; background: var(--bg); border-radius: 6px; font-size: 0.7rem; font-weight: 700; color: var(--dark); border: 1px solid var(--line); }
+#view-cook .order-actions { display: flex; gap: 8px; padding: 10px 12px; background: var(--card); border-top: 1px solid var(--line); flex-wrap: wrap; position: sticky; bottom: 0; z-index: 10; box-shadow: 0 -4px 10px rgba(30,43,34,0.06); flex-shrink: 0; }
+#view-cook .btn-action { flex: 1; min-width: 110px; padding: 14px 10px; border: none; border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; text-transform: uppercase; letter-spacing: 0.5px; font-family: inherit; }
+#view-cook .btn-action:disabled { opacity: 0.5; cursor: not-allowed; }
+#view-cook .btn-ready { background: var(--green); color: var(--bg); }
+#view-cook .btn-deliver { background: var(--blue); color: #fff; }
+#view-cook .btn-back { background: var(--bg); color: var(--dark); flex: 0 0 50px; min-width: 50px; padding: 14px 5px; border: 1px solid var(--line); }
+#view-cook .btn-confirm { background: var(--dark); color: var(--gold-light); }
+#view-cook .btn-delete { background: var(--gray); color: #fff; flex: 0 0 50px; min-width: 50px; padding: 14px 5px; }
+#view-cook .btn-delete:hover { background: var(--burgundy); }
+#view-cook .empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--gray); padding: 40px 20px; text-align: center; }
+#view-cook .empty-icon { font-size: 3rem; opacity: 0.25; margin-bottom: 15px; }
+#view-cook .empty-text { font-size: 0.9rem; font-weight: 600; }
+#view-cook .alert-overlay { position: fixed; inset: 0; background: linear-gradient(135deg, rgba(30,43,34,0.98), rgba(46,91,63,0.98)); z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; color: var(--bg); text-align: center; }
+#view-cook .alert-overlay.show { display: flex; }
+#view-cook .alert-icon { font-size: 8rem; margin-bottom: 20px; }
+#view-cook .alert-title { font-size: 3.5rem; font-weight: 700; margin-bottom: 15px; letter-spacing: 4px; color: var(--gold-light); }
+#view-cook .alert-text { font-size: 1.5rem; opacity: 0.9; margin-bottom: 40px; font-weight: 600; }
+#view-cook .alert-close { padding: 18px 50px; background: var(--gold); color: var(--dark); border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 700; cursor: pointer; letter-spacing: 1px; text-transform: uppercase; }
+#view-cook .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--dark); color: var(--bg); padding: 15px 30px; border-radius: 8px; font-weight: 700; opacity: 0; transition: all 0.3s; z-index: 1000; border-left: 4px solid var(--gold); }
+#view-cook .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+#view-cook .toast.success { background: var(--green); }
+#view-cook .toast.error { background: var(--burgundy); }
+#view-cook .loading { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; transition: opacity 0.5s; }
+#view-cook .loading.hide { opacity: 0; pointer-events: none; }
+#view-cook .spinner { width: 60px; height: 60px; border: 5px solid var(--line); border-top-color: var(--green); border-radius: 50%; animation: k-spin 1s linear infinite; margin-bottom: 20px; }
+@keyframes k-spin { to { transform: rotate(360deg); } }
+#view-cook .loading-text { color: var(--dark); font-weight: 700; font-size: 1.1rem; }
+@media (max-width: 1300px) { #view-cook .board { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 1000px) { #view-cook .board { grid-template-columns: repeat(2, 1fr); } #view-cook .header-center { display: none; } }
+@media (max-width: 700px) {
+  #view-cook header { height: auto; min-height: 64px; padding: 8px 12px; gap: 8px; }
+  #view-cook .logo-icon { width: 42px; height: 42px; font-size: 1.5rem; }
+  #view-cook .logo-text { font-size: 1rem; }
+  #view-cook .logo-sub { display: none; }
+  #view-cook .header-right { gap: 6px; margin-left: auto; }
+  #view-cook .cook-account, #view-cook .header-right .status-indicator, #view-cook .clock { display: none; }
+  #view-cook .board { display: flex; flex-direction: column; gap: 12px; padding: 10px; overflow-y: auto; }
+  #view-cook .column { height: auto; min-height: 52dvh; max-height: 70dvh; }
+}
+
+/* DRIVER */
+#view-driver { background: #FAF7F0; color: #1E2B22; font: 16px/1.5 Inter, Arial, sans-serif; min-height: 100vh; }
+#view-driver header { display: flex; justify-content: space-between; align-items: center; gap: 18px; padding: 16px 5vw; background: #1E2B22; color: #fff; border-bottom: 3px solid #C89B3C; }
+#view-driver .brand { margin: 0; font-size: 1.25rem; letter-spacing: 1px; }
+#view-driver .brand span { color: #C89B3C; }
+#view-driver .header-actions { display: flex; align-items: center; gap: 12px; }
+#view-driver #driverName { color: #E8D5A8; font-size: .9rem; }
+#view-driver button { min-height: 40px; padding: 8px 14px; border: 1px solid #C89B3C; border-radius: 8px; background: transparent; color: inherit; font: inherit; cursor: pointer; }
+#view-driver button:hover { background: #C89B3C; color: #1E2B22; }
+#view-driver main { width: min(100% - 32px, 1050px); margin: 34px auto; }
+#view-driver .heading { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 20px; }
+#view-driver h1 { margin: 0; font-size: clamp(1.6rem, 4vw, 2.2rem); }
+#view-driver .subheading { margin: 5px 0 0; color: #7A7A72; }
+#view-driver #statusMessage { margin-bottom: 16px; color: #7A7A72; }
+#view-driver .orders { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 310px), 1fr)); gap: 16px; }
+#view-driver .order-card { padding: 20px; background: #fff; border: 1px solid #E7E0D2; border-top: 4px solid #3D5A6C; border-radius: 12px; box-shadow: 0 2px 12px rgba(30,43,34,0.06); }
+#view-driver .order-top, #view-driver .order-meta { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+#view-driver .order-top h2 { margin: 0; font-size: 1.15rem; }
+#view-driver .status { padding: 4px 9px; background: #E8EEF2; border-radius: 20px; color: #3D5A6C; font-size: .78rem; font-weight: 700; }
+#view-driver .order-card p { margin: 10px 0; }
+#view-driver .items { margin: 14px 0; padding: 12px 0; border-top: 1px dashed #E7E0D2; border-bottom: 1px dashed #E7E0D2; }
+#view-driver .items p { margin: 4px 0; }
+#view-driver .order-meta { color: #7A7A72; font-size: .9rem; }
+#view-driver .complete { width: 100%; margin-top: 16px; background: #2E5B3F; border-color: #2E5B3F; color: #fff; font-weight: 700; }
+#view-driver .empty { grid-column: 1/-1; padding: 28px; background: #fff; border: 1px solid #E7E0D2; border-radius: 12px; text-align: center; color: #7A7A72; }
+@media (max-width: 540px) { #view-driver header { align-items: flex-start; padding: 14px 16px; } #view-driver #driverName { display: none; } }
+</style>
+</head>
+<body>
+
+<!-- VIEW: AUTH -->
+<div id="view-auth" class="view">
+  <main class="card">
+    <p class="brand">RICHMOND<span>FOOD</span></p>
+    <p class="intro">Connecte-toi ou crée ton compte pour continuer.</p>
+    <div class="tabs" role="tablist">
+      <button class="tab active" id="loginTab" type="button">Connexion</button>
+      <button class="tab" id="registerTab" type="button">Inscription</button>
+    </div>
+    <h1 id="formTitle">Connexion</h1>
+    <form id="authForm">
+      <div class="field" id="nameField" hidden>
+        <label for="fullName">Nom complet</label>
+        <input id="fullName" name="fullName" autocomplete="name" minlength="2">
+      </div>
+      <div class="field" id="phoneField" hidden>
+        <label for="phone">Téléphone</label>
+        <input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="07 / 05 / 01 suivi de 8 chiffres">
+      </div>
+      <div class="field">
+        <label for="email">Adresse e-mail</label>
+        <input id="email" name="email" type="email" autocomplete="email" required>
+      </div>
+      <div class="field">
+        <label for="password">Mot de passe</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" minlength="6" required>
+      </div>
+      <div class="field" id="roleField" hidden>
+        <label for="role">Je souhaite m'inscrire comme</label>
+        <select id="role" name="role">
+          <option value="client">Client</option>
+          <option value="cook">Cuisinier</option>
+          <option value="driver">Livreur</option>
+        </select>
+      </div>
+      <button class="submit" id="submitButton" type="submit">Se connecter</button>
+      <p class="message" id="formMessage" role="status" aria-live="polite"></p>
+    </form>
+    <p class="fine-print">En créant un compte, tu acceptes que ton adresse e-mail soit utilisée pour les messages liés à ton inscription.</p>
+  </main>
+</div>
+
+<!-- VIEW: CLIENT -->
+<div id="view-client" class="view">
+  <div id="scroll-progress"></div>
+  <div id="page-loader">
+    <div class="loader-logo">RICHMOND<span>FOOD</span></div>
+    <div class="loader-spinner"></div>
+  </div>
+
+  <header id="main-header">
+    <div class="container nav">
+      <div class="logo"><div>RICHMOND<span>FOOD</span></div></div>
+      <div class="nav-actions">
+        <span class="account-label" id="accountLabel"></span>
+        <button class="cart-btn" type="button" onclick="APP_AUTH.logout()">Déconnexion</button>
+        <button class="cart-btn" type="button" onclick="openCart()">Panier <span class="cart-count" id="cartCount">0</span></button>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>RICHMOND FOOD</h1>
+    <p>Commandez vos plats préférés à Abidjan<br>Livraison rapide • Paiement Mobile Money</p>
+    <div class="hero-buttons">
+      <button class="btn-primary" onclick="scrollToMenu()">Voir le menu</button>
+      <a href="https://wa.me/22584827766?text=Bonjour%20RICHMOND%20FOOD" target="_blank" class="btn-secondary">Commander par WhatsApp</a>
+    </div>
+  </section>
+
+  <div class="info-bar reveal">
+    <div class="info-item">Lun-Sam : 10h - 22h</div>
+    <div class="info-item">Livraison Abidjan</div>
+    <div class="info-item">Wave / Orange Money</div>
+    <div class="info-item">+225 84 82 77 66</div>
+  </div>
+
+  <section class="menu-section" id="menu">
+    <div class="container">
+      <h2 class="section-title reveal">Notre Menu</h2>
+      <p class="section-subtitle reveal">Sélectionnez vos plats et commandez en quelques clics</p>
+      <div class="categories reveal" id="categories"></div>
+      <div class="menu-tools reveal">
+        <input class="search-box" id="searchInput" type="search" placeholder="Rechercher un plat...">
+        <select class="sort-select" id="sortSelect">
+          <option value="popular">Trier : recommandés</option>
+          <option value="price-asc">Prix croissant</option>
+          <option value="price-desc">Prix décroissant</option>
+          <option value="name">Nom A à Z</option>
+        </select>
+        <button class="favorites-toggle" id="favoritesToggle" type="button" onclick="toggleFavorites()">Mes favoris</button>
+      </div>
+      <div class="results-note" id="resultsNote"></div>
+      <div class="dishes-grid" id="dishes"></div>
+    </div>
+  </section>
+
+  <div class="modal" id="cartModal"><div class="modal-content"><div class="modal-header"><h2 class="modal-title">Votre panier</h2><button class="close-btn" onclick="closeCart()">✕</button></div><div id="cartContent"></div></div></div>
+  <div class="modal" id="dishModal"><div class="modal-content"><div class="modal-header"><h2 class="modal-title">Détails du plat</h2><button class="close-btn" onclick="closeDishDetails()">✕</button></div><div id="dishDetailsContent"></div></div></div>
+  <div class="modal" id="orderModal"><div class="modal-content"><div class="modal-header"><h2 class="modal-title">Finaliser la commande</h2><button class="close-btn" onclick="closeOrder()">✕</button></div><div id="orderContent"></div></div></div>
+
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-col"><h4>RICHMOND FOOD</h4><p>Votre restaurant en ligne à Abidjan.</p></div>
+      <div class="footer-col"><h4>Contact</h4><p>+225 84 82 77 66</p><p>Abidjan, Cocody Angre</p></div>
+      <div class="footer-col"><h4>Horaires</h4><p>Lun-Ven : 10h - 22h</p><p>Samedi : 10h - 23h</p></div>
+      <div class="footer-col"><h4>Liens</h4><a href="#menu">Voir le menu</a><a href="https://wa.me/22584827766">WhatsApp</a></div>
+    </div>
+    <div class="footer-bottom">© 2026 RICHMOND FOOD - Tous droits réservés</div>
+  </footer>
+
+  <a href="https://wa.me/22584827766?text=Bonjour%20RICHMOND%20FOOD" target="_blank" class="whatsapp-float">WA</a>
+  <button class="back-to-top" id="backToTop">↑</button>
+</div>
+
+<!-- VIEW: COOK -->
+<div id="view-cook" class="view">
+  <div class="loading" id="loading"><div class="spinner"></div><div class="loading-text">Chargement de la cuisine...</div></div>
+  <div class="alert-overlay" id="alertOverlay">
+    <div class="alert-icon">🔔</div>
+    <div class="alert-title">NOUVELLE COMMANDE</div>
+    <div class="alert-text" id="alertText">--</div>
+    <button class="alert-close" onclick="closeAlert()">✓ J'AI VU</button>
+  </div>
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🍽️</div>
+      <div>
+        <div class="logo-text">RICHMOND<span>FOOD</span></div>
+        <div class="logo-sub">Tableau de Bord Cuisine</div>
+      </div>
+    </div>
+    <div class="header-center">
+      <div class="stat-badge"><div class="dot"></div><div class="num" id="statNew">0</div><div class="label">Nouvelles</div></div>
+      <div class="stat-badge preparing"><div class="dot"></div><div class="num" id="statPrep">0</div><div class="label">En préparation</div></div>
+      <div class="stat-badge ready"><div class="dot"></div><div class="num" id="statReady">0</div><div class="label">Prêtes</div></div>
+    </div>
+    <div class="header-right">
+      <span id="cookAccount" class="cook-account" style="color:var(--gold-light);font-size:.8rem;"></span>
+      <div class="status-indicator" id="statusBadge"><div class="dot"></div><span id="statusText">En ligne</span></div>
+      <div class="clock" id="clock">--:--:--</div>
+      <button class="icon-btn" onclick="toggleSound()" id="soundBtn">🔊</button>
+      <button class="icon-btn" onclick="toggleFullscreen()">⛶</button>
+      <button class="icon-btn" onclick="manualRefresh()">🔄</button>
+      <button class="icon-btn" onclick="APP_AUTH.logout()">↪</button>
+    </div>
+  </header>
+  <div class="info-bar">
+    <div class="left"><span>🕐 <span id="infoTime">--:--</span></span><span>📊 <span id="infoTotal">0</span> commandes actives</span></div>
+    <div class="right"><span id="refreshStatus">🔄 Mode manuel</span><span id="lastUpdate">Dernière MAJ : --</span></div>
+  </div>
+  <div class="board" id="board"></div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<!-- VIEW: DRIVER -->
+<div id="view-driver" class="view">
+  <header>
+    <p class="brand">RICHMOND<span>FOOD</span></p>
+    <div class="header-actions">
+      <span id="driverName"></span>
+      <button type="button" onclick="loadDeliveries()">Actualiser</button>
+      <button type="button" onclick="APP_AUTH.logout()">Déconnexion</button>
+    </div>
+  </header>
+  <main>
+    <div class="heading"><div><h1>Mes livraisons</h1><p class="subheading">Commandes qui te sont attribuées.</p></div></div>
+    <p id="statusMessage" role="status">Chargement…</p>
+    <section class="orders" id="orders"></section>
+  </main>
+</div>
+
+<script>
+/* ============================================================
+   CONFIG
+   ------------------------------------------------------------
+   Remplace les URLs ngrok ci-dessous par les tiennes.
+   Les webhooks /auth-register et /auth-login doivent exister
+   dans n8n (voir notes à la fin du fichier).
+   ============================================================ */
+window.APP_CONFIG = {
+  webhooks: {
+    authRegister: 'https://deploy-showoff-engaging.ngrok-free.dev/webhook/auth-register',
+    authLogin:    'https://deploy-showoff-engaging.ngrok-free.dev/webhook/auth-login',
+    order:         'https://deploy-showoff-engaging.ngrok-free.dev/webhook/restaurant-order',
+    kitchenOrders: 'https://deploy-showoff-engaging.ngrok-free.dev/webhook/kitchen-orders',
+    kitchenUpdate: 'https://deploy-showoff-engaging.ngrok-free.dev/webhook/kitchen-update',
+    driverOrders: '',
+    driverUpdate: ''
+  },
+  whatsappNumber: '22584827766',
+  deliveryFee: 1000,
+  freeDeliveryFrom: 10000,
+  requestTimeout: 15000
+};
+
+/* Helpers globaux */
+function escapeHtml(value = '') {
+  return String(value)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
+function formatPrice(value) { return Number(value || 0).toLocaleString('fr-FR') + ' F'; }
+
+/* ============================================================
+   APP_AUTH — sans Supabase. Utilise n8n + localStorage.
+   ============================================================ */
+(function () {
+  const SESSION_KEY = 'richmond_session';
+  const ROLE_VIEWS = ['client', 'cook', 'driver'];
+  const viewInit = {};
+  let viewCleanups = [];
+
+  function getCurrentUser() {
+    try { return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); }
+    catch (e) { return null; }
+  }
+
+  function saveSession(user) {
+    localStorage.setItem(SESSION_KEY, JSON.stringify(user));
+  }
+
+  function clearSession() {
+    localStorage.removeItem(SESSION_KEY);
+  }
+
+  function roleFor(user) { return user?.role || ''; }
+
+  function isAuthenticated() { return !!getCurrentUser(); }
+
+  function showView(name) {
+    viewCleanups.forEach(fn => { try { fn(); } catch (e) { console.error(e); } });
+    viewCleanups = [];
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    const target = document.getElementById('view-' + name) || document.getElementById('view-auth');
+    target.classList.add('active');
+    document.body.dataset.view = target.id.replace('view-', '');
+    window.scrollTo(0, 0);
+    const init = viewInit[name];
+    if (typeof init === 'function') {
+      try { init(); } catch (e) { console.error('Init view ' + name + ' :', e); }
+    }
+  }
+
+  function registerView(name, initFn) { viewInit[name] = initFn; }
+  function registerCleanup(fn) { viewCleanups.push(fn); }
+
+  /* ----------------------------------------------------------
+     Appel générique d'un webhook n8n
+     ---------------------------------------------------------- */
+  async function callWebhook(url, payload) {
+    if (!url) throw new Error('URL de webhook n8n manquante dans APP_CONFIG.');
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), window.APP_CONFIG.requestTimeout || 15000);
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        mode: 'cors',
+        cache: 'no-cache',
+        headers: {
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true'
+        },
+        body: JSON.stringify(payload),
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+      const text = await response.text();
+      if (!response.ok) {
+        throw new Error(`n8n a répondu HTTP ${response.status}${text ? ' : ' + text.slice(0, 200) : ''}`);
+      }
+      if (text.trim().startsWith('<')) {
+        throw new Error("n8n a renvoyé du HTML au lieu de JSON. Vérifie que ngrok-skip-browser-warning est bien pris en compte (interstitiel ngrok).");
+      }
+      try { return JSON.parse(text); }
+      catch (e) { return { raw: text }; }
+    } catch (error) {
+      clearTimeout(timeoutId);
+      if (error.name === 'AbortError') throw new Error('Timeout : n8n n\'a pas répondu dans les 15 secondes.');
+      throw error;
+    }
+  }
+
+  /* ----------------------------------------------------------
+     Inscription : POST /auth-register
+     Payload : { email, password, full_name, phone, role }
+     Réponse attendue : { success: true, user: {id, email, full_name, phone, role} }
+     ---------------------------------------------------------- */
+  async function register(payload) {
+    const url = window.APP_CONFIG.webhooks.authRegister;
+    if (!url) throw new Error("Le webhook 'auth-register' n'est pas configuré.");
+    const result = await callWebhook(url, { action: 'register', ...payload });
+    if (result.success === false || result.error) {
+      throw new Error(result.error || "L'inscription a échoué.");
+    }
+    const user = result.user || result.data || result;
+    saveSession(user);
+    return user;
+  }
+
+  /* ----------------------------------------------------------
+     Connexion : POST /auth-login
+     Payload : { email, password }
+     Réponse attendue : { success: true, user: {id, email, full_name, phone, role} }
+     ---------------------------------------------------------- */
+  async function login(email, password) {
+    const url = window.APP_CONFIG.webhooks.authLogin;
+    if (!url) throw new Error("Le webhook 'auth-login' n'est pas configuré.");
+    const result = await callWebhook(url, { action: 'login', email, password });
+    if (result.success === false || result.error) {
+      throw new Error(result.error || 'Identifiants invalides.');
+    }
+    const user = result.user || result.data || result;
+    if (!user || !user.role) throw new Error('Réponse n8n invalide : rôle manquant.');
+    saveSession(user);
+    return user;
+  }
+
+  function logout() {
+    clearSession();
+    showView('auth');
+  }
+
+  async function requireRole(requiredRole) {
+    const user = getCurrentUser();
+    if (!user) { showView('auth'); return null; }
+    const role = roleFor(user);
+    if (role !== requiredRole) {
+      showView(ROLE_VIEWS.includes(role) ? role : 'auth');
+      return null;
+    }
+    return user;
+  }
+
+  async function redirectForUser(user) {
+    const role = roleFor(user);
+    if (!ROLE_VIEWS.includes(role)) {
+      clearSession();
+      throw new Error('Le rôle associé à ce compte est invalide. Contacte le restaurant.');
+    }
+    showView(role);
+  }
+
+  window.APP_AUTH = {
+    register, login, logout,
+    getCurrentUser, isAuthenticated, roleFor,
+    requireRole, redirectForUser,
+    callWebhook, showView, registerView, registerCleanup
+  };
+})();
+</script>
+
+<!-- AUTH VIEW -->
+<script>
+(function () {
+  const form = document.getElementById('authForm');
+  const message = document.getElementById('formMessage');
+  let mode = 'login';
+
+  function showMessage(text, type) {
+    message.textContent = text;
+    message.className = `message show ${type}`;
+  }
+
+  function setMode(nextMode) {
+    mode = nextMode;
+    const registering = mode === 'register';
+    document.getElementById('loginTab').classList.toggle('active', !registering);
+    document.getElementById('registerTab').classList.toggle('active', registering);
+    document.getElementById('nameField').hidden = !registering;
+    document.getElementById('phoneField').hidden = !registering;
+    document.getElementById('roleField').hidden = !registering;
+    document.getElementById('fullName').required = registering;
+    document.getElementById('phone').required = registering;
+    document.getElementById('password').autocomplete = registering ? 'new-password' : 'current-password';
+    document.getElementById('formTitle').textContent = registering ? 'Créer un compte' : 'Connexion';
+    document.getElementById('submitButton').textContent = registering ? 'Créer mon compte' : 'Se connecter';
+    message.className = 'message';
+  }
+
+  document.getElementById('loginTab').addEventListener('click', () => setMode('login'));
+  document.getElementById('registerTab').addEventListener('click', () => setMode('register'));
+
+  function normalizeIvorianPhone(raw) {
+    if (!raw) return { valid: false, normalized: '', clean: '' };
+    const clean = String(raw).replace(/\D/g, '');
+    if (/^0(1|5|7)\d{8}$/.test(clean)) return { valid: true, normalized: '225' + clean, clean };
+    if (/^2250(1|5|7)\d{8}$/.test(clean)) return { valid: true, normalized: clean, clean };
+    if (/^225(1|5|7)\d{8}$/.test(clean)) return { valid: true, normalized: '2250' + clean.substring(3), clean };
+    return { valid: false, normalized: '', clean };
+  }
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const button = document.getElementById('submitButton');
+    button.disabled = true;
+    button.textContent = mode === 'register' ? 'Création…' : 'Connexion…';
+    message.className = 'message';
+
+    try {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      if (mode === 'register') {
+        const fullName = document.getElementById('fullName').value.trim();
+        const rawPhone = document.getElementById('phone').value.trim();
+        const role = document.getElementById('role').value;
+
+        if (fullName.length < 2) throw new Error('Nom complet requis (min. 2 caractères).');
+        if (password.length < 6) throw new Error('Mot de passe trop court (min. 6 caractères).');
+        const phoneResult = normalizeIvorianPhone(rawPhone);
+        if (!phoneResult.valid) throw new Error('Numéro invalide. Format attendu : 07/05/01 + 8 chiffres.');
+
+        const user = await APP_AUTH.register({
+          email, password,
+          full_name: fullName,
+          phone: phoneResult.normalized,
+          role
+        });
+        showMessage('Compte créé. Redirection…', 'success');
+        setTimeout(() => APP_AUTH.redirectForUser(user), 800);
+      } else {
+        const user = await APP_AUTH.login(email, password);
+        await APP_AUTH.redirectForUser(user);
+      }
+    } catch (error) {
+      console.error('Échec de l’authentification :', error);
+      showMessage(error.message || 'Une erreur est survenue. Réessaie.', 'error');
+    } finally {
+      button.disabled = false;
+      button.textContent = mode === 'register' ? 'Créer mon compte' : 'Se connecter';
+    }
+  });
+
+  APP_AUTH.registerView('auth', () => { setMode('login'); });
+  setMode('login');
+})();
+</script>
+
+<!-- CLIENT VIEW -->
+<script>
+(function () {
+  const CONFIG = {
+    WEBHOOK_URL: window.APP_CONFIG.webhooks.order,
+    WHATSAPP_NUMBER: window.APP_CONFIG.whatsappNumber,
+    DELIVERY_FEE: window.APP_CONFIG.deliveryFee,
+    FREE_DELIVERY_FROM: window.APP_CONFIG.freeDeliveryFrom,
+    REQUEST_TIMEOUT: window.APP_CONFIG.requestTimeout
+  };
+
+  let MENU = [
+    { id: 1, name: 'Attieke Poisson', category: 'locaux', price: 2500, desc: 'Attieke frais avec poisson grillé', tags: ['hot'] },
+    { id: 2, name: 'Riz Sauce Graine', category: 'locaux', price: 2000, desc: 'Riz avec sauce graine onctueuse' },
+    { id: 3, name: 'Kedjenou de Poulet', category: 'locaux', price: 4500, desc: 'Poulet mijoté aux légumes', tags: ['hot'] },
+    { id: 4, name: 'Garba', category: 'locaux', price: 1500, desc: 'Attieke avec thon frit' },
+    { id: 5, name: 'Sauce Claire Poisson', category: 'locaux', price: 3000, desc: 'Poisson frais en sauce claire' },
+    { id: 6, name: 'Riz Gras', category: 'locaux', price: 2000, desc: 'Riz cuisiné aux légumes' },
+    { id: 7, name: 'Poulet Yassa', category: 'locaux', price: 4000, desc: 'Poulet mariné aux oignons', tags: ['new'] },
+    { id: 8, name: 'Foutou Sauce Arachide', category: 'locaux', price: 3500, desc: 'Foutou avec sauce arachide' },
+    { id: 10, name: 'Burger Classic', category: 'fastfood', price: 3500, desc: 'Pain, steak, fromage', tags: ['new'] },
+    { id: 11, name: 'Pizza Margherita', category: 'fastfood', price: 6000, desc: 'Tomate, fromage, basilic' },
+    { id: 12, name: 'Pizza Pepperoni', category: 'fastfood', price: 7000, desc: 'Fromage, pepperoni', tags: ['hot'] },
+    { id: 13, name: 'Sandwich Poulet', category: 'fastfood', price: 2500, desc: 'Poulet grillé, crudités' },
+    { id: 14, name: 'Hot-Dog', category: 'fastfood', price: 2000, desc: 'Saucisse, pain' },
+    { id: 15, name: 'Tacos Poulet', category: 'fastfood', price: 3000, desc: 'Poulet épicé, fromage' },
+    { id: 20, name: 'Poulet Braisé', category: 'grillades', price: 5000, desc: 'Poulet entier braisé', tags: ['hot'] },
+    { id: 21, name: 'Brochettes de Boeuf', category: 'grillades', price: 3000, desc: 'Brochettes tendres' },
+    { id: 22, name: 'Poisson Braisé', category: 'grillades', price: 4000, desc: 'Poisson entier grillé' },
+    { id: 23, name: 'Cotelettes Agneau', category: 'grillades', price: 6500, desc: 'Côtelettes grillées' },
+    { id: 24, name: 'Aloco', category: 'grillades', price: 2000, desc: 'Bananes plantain frites', tags: ['veg'] },
+    { id: 30, name: 'Jus de Bissap', category: 'boissons', price: 500, desc: "Jus d'hibiscus", tags: ['veg'] },
+    { id: 31, name: 'Jus de Gingembre', category: 'boissons', price: 500, desc: 'Jus de gingembre', tags: ['veg'] },
+    { id: 32, name: 'Jus de Bouye', category: 'boissons', price: 700, desc: 'Jus de baobab', tags: ['veg'] },
+    { id: 33, name: 'Coca-Cola 33cl', category: 'boissons', price: 600, desc: 'Boisson gazeuse' },
+    { id: 34, name: 'Eau Minerale 50cl', category: 'boissons', price: 300, desc: 'Eau fraîche' },
+    { id: 40, name: 'Beignets', category: 'desserts', price: 500, desc: 'Beignets sucrés', tags: ['veg'] },
+    { id: 41, name: 'Gaufres', category: 'desserts', price: 1000, desc: 'Gaufres croustillantes', tags: ['veg'] },
+    { id: 42, name: 'Salade de Fruits', category: 'desserts', price: 1500, desc: 'Fruits frais', tags: ['veg'] },
+    { id: 43, name: 'Milkshake Vanille', category: 'desserts', price: 2000, desc: 'Milkshake vanille', tags: ['new'] }
+  ];
+
+  const CATEGORIES = [
+    { id: 'all', name: 'Tous' }, { id: 'locaux', name: 'Plats Locaux' },
+    { id: 'fastfood', name: 'Fast-Food' }, { id: 'grillades', name: 'Grillades' },
+    { id: 'boissons', name: 'Boissons' }, { id: 'desserts', name: 'Desserts' }
+  ];
+
+  let cart = [];
+  let currentCategory = 'all';
+  let searchTerm = '';
+  let sortMode = 'popular';
+  let favoritesOnly = false;
+  let favorites = [];
+  let lastOrderData = null;
+  let currentAuthUser = null;
+
+  const DISH_IMAGES = {
+    1:'https://images.unsplash.com/photo-1580476262798-bddd9f4b7369?auto=format&fit=crop&w=900&q=85',
+    2:'https://images.unsplash.com/photo-1596797038530-2c107229654b?auto=format&fit=crop&w=900&q=85',
+    3:'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=900&q=85',
+    4:'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=900&q=85',
+    5:'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=900&q=85',
+    6:'https://images.unsplash.com/photo-1516684732162-798a0062be99?auto=format&fit=crop&w=900&q=85',
+    7:'https://images.unsplash.com/photo-1598103442097-8b74394b95c6?auto=format&fit=crop&w=900&q=85',
+    8:'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=900&q=85',
+    10:'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=900&q=85',
+    11:'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=900&q=85',
+    12:'https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=900&q=85',
+    13:'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=900&q=85',
+    14:'https://images.unsplash.com/photo-1612392062126-5c1e79c68a17?auto=format&fit=crop&w=900&q=85',
+    15:'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=900&q=85',
+    20:'https://images.unsplash.com/photo-1610057099443-fde8c4d50f91?auto=format&fit=crop&w=900&q=85',
+    21:'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?auto=format&fit=crop&w=900&q=85',
+    22:'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=900&q=85',
+    23:'https://images.unsplash.com/photo-1603360946369-dc9bb6258143?auto=format&fit=crop&w=900&q=85',
+    24:'https://images.unsplash.com/photo-1603052875302-d3c2c8c4d68f?auto=format&fit=crop&w=900&q=85',
+    30:'https://images.unsplash.com/photo-1546173159-315724a31696?auto=format&fit=crop&w=900&q=85',
+    31:'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=900&q=85',
+    32:'https://images.unsplash.com/photo-1600271886742-f049cd451bba?auto=format&fit=crop&w=900&q=85',
+    33:'https://images.unsplash.com/photo-1554866585-cd94860890b7?auto=format&fit=crop&w=900&q=85',
+    34:'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?auto=format&fit=crop&w=900&q=85',
+    40:'https://images.unsplash.com/photo-1551024506-0bccd828d307?auto=format&fit=crop&w=900&q=85',
+    41:'https://images.unsplash.com/photo-1562376552-0d160a2f238d?auto=format&fit=crop&w=900&q=85',
+    42:'https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?auto=format&fit=crop&w=900&q=85',
+    43:'https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=900&q=85'
+  };
+
+  function initScrollAnimations() {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('#view-client .reveal').forEach(el => observer.observe(el));
+  }
+  function initScrollProgress() {
+    const bar = document.getElementById('scroll-progress');
+    const handler = () => {
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      bar.style.width = ((window.scrollY / Math.max(docHeight, 1)) * 100) + '%';
+    };
+    window.addEventListener('scroll', handler, { passive: true });
+    APP_AUTH.registerCleanup(() => window.removeEventListener('scroll', handler));
+  }
+  function initHeaderScroll() {
+    const header = document.getElementById('main-header');
+    const handler = () => header.classList.toggle('scrolled', window.scrollY > 50);
+    window.addEventListener('scroll', handler, { passive: true });
+    APP_AUTH.registerCleanup(() => window.removeEventListener('scroll', handler));
+  }
+  function initBackToTop() {
+    const btn = document.getElementById('backToTop');
+    const handler = () => btn.classList.toggle('visible', window.scrollY > 400);
+    window.addEventListener('scroll', handler, { passive: true });
+    APP_AUTH.registerCleanup(() => window.removeEventListener('scroll', handler));
+    btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  }
+
+  function loadFavorites() {
+    try { favorites = JSON.parse(localStorage.getItem('richmondFavorites') || '[]'); }
+    catch (e) { favorites = []; }
+    updateFavoritesButton();
+  }
+  function saveFavorites() { localStorage.setItem('richmondFavorites', JSON.stringify(favorites)); }
+  function toggleFavorite(dishId) {
+    favorites = favorites.includes(dishId) ? favorites.filter(id => id !== dishId) : [...favorites, dishId];
+    saveFavorites(); renderDishes();
+    showNotification(favorites.includes(dishId) ? 'Ajouté aux favoris' : 'Retiré des favoris');
+  }
+  function toggleFavorites() { favoritesOnly = !favoritesOnly; updateFavoritesButton(); renderDishes(); }
+  function updateFavoritesButton() {
+    const b = document.getElementById('favoritesToggle');
+    if (!b) return;
+    b.classList.toggle('active', favoritesOnly);
+    b.textContent = favoritesOnly ? 'Tous les plats' : 'Mes favoris';
+  }
+
+  function renderCategories() {
+    document.getElementById('categories').innerHTML = CATEGORIES.map(cat => `
+      <button class="cat-btn ${cat.id === currentCategory ? 'active' : ''}" onclick="filterCategory('${cat.id}')">${cat.name}</button>
+    `).join('');
+  }
+  function filterCategory(id) { currentCategory = id; renderCategories(); renderDishes(); }
+
+  function openDishDetails(dishId) {
+    const dish = MENU.find(i => i.id === dishId);
+    if (!dish) return;
+    const cat = CATEGORIES.find(i => i.id === dish.category);
+    const img = DISH_IMAGES[dish.id];
+    document.getElementById('dishDetailsContent').innerHTML = `
+      <img class="dish-detail-image" src="${escapeHtml(img || '')}" alt="${escapeHtml(dish.name)}" onerror="this.style.display='none'">
+      <div class="dish-detail-body">
+        <div>${(dish.tags || []).map(t => `<span class="badge badge-${t}">${t}</span>`).join('')}</div>
+        <h3>${escapeHtml(dish.name)}</h3>
+        <p class="dish-detail-description">${escapeHtml(dish.desc)}</p>
+        <div class="dish-detail-meta">
+          <span class="dish-detail-category">${escapeHtml(cat ? cat.name : 'Plat')}</span>
+          <span class="dish-detail-price">${formatPrice(dish.price)}</span>
+        </div>
+        <button class="btn-submit" onclick="addToCartFromDetails(${dish.id})">Ajouter au panier</button>
+      </div>`;
+    document.getElementById('dishModal').classList.add('active');
+  }
+  function closeDishDetails() { document.getElementById('dishModal').classList.remove('active'); }
+  function addToCartFromDetails(id) { addToCart(id); closeDishDetails(); }
+
+  function renderDishes() {
+    const container = document.getElementById('dishes');
+    let filtered = currentCategory === 'all' ? MENU : MENU.filter(d => d.category === currentCategory);
+    filtered = filtered.filter(d => {
+      const matchesSearch = !searchTerm || `${d.name} ${d.desc}`.toLowerCase().includes(searchTerm);
+      const matchesFav = !favoritesOnly || favorites.includes(d.id);
+      return matchesSearch && matchesFav;
+    });
+    if (sortMode === 'price-asc') filtered.sort((a, b) => a.price - b.price);
+    if (sortMode === 'price-desc') filtered.sort((a, b) => b.price - a.price);
+    if (sortMode === 'name') filtered.sort((a, b) => a.name.localeCompare(b.name));
+
+    document.getElementById('resultsNote').textContent = `${filtered.length} plat${filtered.length > 1 ? 's' : ''} disponible${filtered.length > 1 ? 's' : ''}`;
+    if (filtered.length === 0) { container.innerHTML = '<div class="empty-cart">Aucun plat.</div>'; return; }
+
+    container.innerHTML = filtered.map((dish, index) => {
+      const safeName = escapeHtml(dish.name);
+      let badges = '';
+      if (dish.tags?.includes('hot')) badges += '<span class="badge badge-hot">Populaire</span>';
+      if (dish.tags?.includes('new')) badges += '<span class="badge badge-new">Nouveau</span>';
+      if (dish.tags?.includes('veg')) badges += '<span class="badge badge-veg">Veggie</span>';
+      return `
+        <div class="dish-card" role="button" tabindex="0" onclick="openDishDetails(${dish.id})" style="animation-delay: ${Math.min(index * 0.06, 0.6)}s">
+          <div class="dish-image"><img src="${escapeHtml(DISH_IMAGES[dish.id] || '')}" alt="${safeName}" loading="lazy" onerror="this.style.display='none'"></div>
+          <div class="dish-info">
+            <div class="dish-name">${safeName}</div>
+            <div class="dish-desc">${escapeHtml(dish.desc)}</div>
+            <div>${badges}</div>
+            <div class="dish-footer">
+              <div class="dish-price">${formatPrice(dish.price)}</div>
+              <div class="dish-actions">
+                <button class="favorite-btn ${favorites.includes(dish.id) ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite(${dish.id})">${favorites.includes(dish.id) ? '♥' : '♡'}</button>
+                <button class="btn-add" onclick="event.stopPropagation(); addToCart(${dish.id})">Ajouter</button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function addToCart(dishId) {
+    const dish = MENU.find(d => d.id === dishId);
+    if (!dish) return;
+    const existing = cart.find(i => i.id === dishId);
+    if (existing) existing.qty += 1;
+    else cart.push({ ...dish, qty: 1 });
+    saveCart(); updateCartCount();
+    showNotification(`${dish.name} ajouté au panier`);
+    const badge = document.getElementById('cartCount');
+    badge.classList.remove('bump'); void badge.offsetWidth; badge.classList.add('bump');
+  }
+  function removeFromCart(id) { cart = cart.filter(i => i.id !== id); saveCart(); updateCartCount(); renderCart(); }
+  function updateQty(id, delta) {
+    const item = cart.find(i => i.id === id);
+    if (!item) return;
+    item.qty += delta;
+    if (item.qty <= 0) { removeFromCart(id); return; }
+    saveCart(); updateCartCount(); renderCart();
+  }
+  function updateCartCount() { document.getElementById('cartCount').textContent = cart.reduce((s, i) => s + i.qty, 0); }
+  function getCartSubtotal() { return cart.reduce((s, i) => s + (i.price * i.qty), 0); }
+  function getDeliveryFee() { return getCartSubtotal() >= CONFIG.FREE_DELIVERY_FROM ? 0 : CONFIG.DELIVERY_FEE; }
+  function getCartTotal() { return getCartSubtotal() + getDeliveryFee(); }
+  function saveCart() { try { localStorage.setItem('richmondCart', JSON.stringify(cart)); } catch (e) {} }
+  function loadCart() {
+    try {
+      const saved = localStorage.getItem('richmondCart');
+      if (!saved) return;
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed)) {
+        cart = parsed.filter(i => i && typeof i.id !== 'undefined' && typeof i.qty === 'number' && i.qty > 0);
+        updateCartCount();
+      }
+    } catch (e) {}
+  }
+
+  function openCart() { renderCart(); document.getElementById('cartModal').classList.add('active'); }
+  function closeCart() { document.getElementById('cartModal').classList.remove('active'); }
+
+  function renderCart() {
+    const c = document.getElementById('cartContent');
+    if (cart.length === 0) {
+      c.innerHTML = `<div class="empty-cart"><p style="font-size:1.1rem;font-weight:700;">Votre panier est vide</p><p style="margin-top:8px;font-size:0.9rem;">Ajoutez des plats pour commencer</p></div>`;
+      return;
+    }
+    const sub = getCartSubtotal(), del = getDeliveryFee(), tot = getCartTotal();
+    c.innerHTML = `
+      ${cart.map(i => `
+        <div class="cart-item">
+          <div class="cart-item-info">
+            <div class="cart-item-name">${i.name}</div>
+            <div class="cart-item-price">${(i.price * i.qty).toLocaleString()} F</div>
+          </div>
+          <div class="qty-controls">
+            <button class="qty-btn" onclick="updateQty(${i.id}, -1)">−</button>
+            <span class="qty-display">${i.qty}</span>
+            <button class="qty-btn" onclick="updateQty(${i.id}, 1)">+</button>
+            <button class="remove-btn" onclick="removeFromCart(${i.id})">Suppr.</button>
+          </div>
+        </div>`).join('')}
+      <div style="margin-top:20px;padding:15px;background:#F4EFE4;border-radius:10px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:0.95rem;"><span>Sous-total</span><strong>${sub.toLocaleString()} F</strong></div>
+        <div style="display:flex;justify-content:space-between;font-size:0.95rem;"><span>Livraison</span><strong>${del === 0 ? 'GRATUITE' : del.toLocaleString() + ' F'}</strong></div>
+      </div>
+      <div class="cart-total"><span>Total :</span><span>${tot.toLocaleString()} F</span></div>
+      <button class="btn-submit" onclick="openOrder()">Commander maintenant</button>`;
+  }
+
+  function openOrder() {
+    if (cart.length === 0) { showNotification('Ajoutez des plats avant de commander'); return; }
+    closeCart();
+    document.getElementById('orderContent').innerHTML = `
+      <form id="orderForm" onsubmit="submitOrder(event)">
+        <div class="form-group"><label>Nom complet *</label><input type="text" id="customerName" required></div>
+        <div class="form-group">
+          <label>Téléphone (WhatsApp) *</label>
+          <input type="tel" id="customerPhone" required placeholder="07 / 05 / 01 suivi de 8 chiffres">
+          <div class="form-hint" id="phoneHint">Format : 07 / 05 / 01 suivi de 8 chiffres</div>
+        </div>
+        <div class="form-group"><label>Adresse de livraison *</label><textarea id="customerAddress" required rows="3"></textarea></div>
+        <div class="form-group">
+          <label>Mode de paiement *</label>
+          <select id="paymentMethod" required>
+            <option value="">-- Choisir --</option>
+            <option value="wave">Wave</option>
+            <option value="orange_money">Orange Money</option>
+            <option value="cash">Espèces à la livraison</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Notes (facultatif)</label><textarea id="notes" rows="2"></textarea></div>
+        <div class="cart-total"><span>Total à payer :</span><span id="orderTotal">${getCartTotal().toLocaleString()} FCFA</span></div>
+        <button type="submit" class="btn-submit" id="submitBtn">Confirmer la commande</button>
+      </form>`;
+    document.getElementById('orderModal').classList.add('active');
+    document.getElementById('customerName').value = currentAuthUser?.full_name || '';
+    document.getElementById('customerPhone').value = currentAuthUser?.phone || '';
+    const phoneInput = document.getElementById('customerPhone');
+    if (phoneInput) {
+      phoneInput.addEventListener('input', validatePhoneLive);
+      phoneInput.addEventListener('blur', validatePhoneLive);
+    }
+  }
+  function closeOrder() { document.getElementById('orderModal').classList.remove('active'); }
+
+  function normalizeIvorianPhone(raw) {
+    if (!raw) return { valid: false, normalized: '', clean: '' };
+    const clean = String(raw).replace(/\D/g, '');
+    if (/^0(1|5|7)\d{8}$/.test(clean)) return { valid: true, normalized: '225' + clean, clean };
+    if (/^2250(1|5|7)\d{8}$/.test(clean)) return { valid: true, normalized: clean, clean };
+    if (/^225(1|5|7)\d{8}$/.test(clean)) return { valid: true, normalized: '2250' + clean.substring(3), clean };
+    return { valid: false, normalized: '', clean };
+  }
+
+  function validatePhoneLive(event) {
+    const input = event.target;
+    const hint = document.getElementById('phoneHint');
+    if (!input || !hint) return;
+    const value = input.value.trim();
+    if (!value) {
+      input.classList.remove('input-error');
+      hint.className = 'form-hint';
+      hint.textContent = 'Format : 07 / 05 / 01 suivi de 8 chiffres';
+      return;
+    }
+    const result = normalizeIvorianPhone(value);
+    if (result.valid) {
+      input.classList.remove('input-error');
+      hint.className = 'form-hint';
+      hint.textContent = `Numéro valide : ${result.normalized}`;
+    } else {
+      input.classList.add('input-error');
+      hint.className = 'form-hint error';
+      hint.textContent = 'Numéro invalide.';
+    }
+  }
+
+  async function submitOrder(event) {
+    event.preventDefault();
+    const customerName = document.getElementById('customerName').value.trim();
+    const customerAddress = document.getElementById('customerAddress').value.trim();
+    const paymentMethod = document.getElementById('paymentMethod').value.trim();
+    const notes = document.getElementById('notes').value.trim();
+    const rawPhone = document.getElementById('customerPhone').value.trim();
+
+    if (customerName.length < 2) { alert("Veuillez entrer un nom valide."); return; }
+    const phoneResult = normalizeIvorianPhone(rawPhone);
+    if (!phoneResult.valid) { alert("Numéro WhatsApp invalide.\n\nFormats : 07 / 05 / 01 + 8 chiffres."); return; }
+    if (customerAddress.length < 5) { alert("Veuillez entrer une adresse complète."); return; }
+    if (!paymentMethod) { alert("Veuillez choisir un mode de paiement."); return; }
+    if (!cart || cart.length === 0) { alert("Votre panier est vide."); return; }
+
+    const orderData = {
+      customer_id: currentAuthUser.id,
+      customer_email: currentAuthUser.email,
+      customer_name: customerName,
+      customer_phone: phoneResult.normalized,
+      customer_address: customerAddress,
+      payment_method: paymentMethod,
+      delivery_time: 'asap',
+      notes: notes,
+      items: cart.map(i => ({ id: i.id, name: i.name, price: i.price, qty: i.qty })),
+      subtotal: getCartSubtotal(),
+      discount: 0,
+      promo_code: '',
+      delivery_fee: getDeliveryFee(),
+      total: getCartTotal(),
+      order_date: new Date().toISOString(),
+      order_number: 'CMD-' + Date.now().toString().slice(-6)
+    };
+    lastOrderData = orderData;
+    await sendOrder(orderData);
+  }
+
+  async function sendOrder(orderData) {
+    if (!CONFIG.WEBHOOK_URL) {
+      showError('Configuration', "Le webhook 'restaurant-order' n'est pas configuré.", orderData);
+      return;
+    }
+    const submitBtn = document.getElementById('submitBtn');
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Envoi en cours...'; }
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), CONFIG.REQUEST_TIMEOUT);
+    try {
+      const response = await fetch(CONFIG.WEBHOOK_URL, {
+        method: 'POST', mode: 'cors', cache: 'no-cache',
+        headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
+        body: JSON.stringify(orderData),
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+      if (response.ok) {
+        await response.text();
+        showSuccess(orderData);
+      } else {
+        const errorText = await response.text();
+        throw new Error(`HTTP ${response.status} - ${errorText.substring(0, 200)}`);
+      }
+    } catch (error) {
+      clearTimeout(timeoutId);
+      console.error('Erreur :', error);
+      let errorMsg = error.message || 'Erreur inconnue';
+      let errorType = 'Erreur réseau';
+      if (error.name === 'AbortError') { errorMsg = "Le serveur n'a pas répondu dans les 15 secondes."; errorType = 'Timeout'; }
+      else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+        errorMsg = 'Impossible de joindre le serveur. Vérifie que n8n et ngrok sont actifs.'; errorType = 'Connexion impossible';
+      } else if (error.message.includes('CORS')) {
+        errorMsg = 'Blocage CORS. Vérifie la config du webhook n8n.'; errorType = 'CORS bloqué';
+      }
+      showError(errorType, errorMsg, orderData);
+    }
+  }
+
+  function showSuccess(orderData) {
+    const c = document.getElementById('orderContent');
+    const waText = encodeURIComponent(
+      'Bonjour RICHMOND FOOD, je viens de passer la commande *' + orderData.order_number + '* ' +
+      "d'un montant de " + orderData.total.toLocaleString() + ' FCFA. Merci de me confirmer. 🙏'
+    );
+    const waUrl = 'https://wa.me/' + CONFIG.WHATSAPP_NUMBER + '?text=' + waText;
+    c.innerHTML = `
+      <div style="padding:10px;">
+        <div style="text-align:center; margin-bottom:15px;">
+          <div style="width:70px; height:70px; margin:0 auto 15px; background:#EAF3EC; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2rem; color:#2E5B3F;">✓</div>
+          <h3 style="color:#2E5B3F;margin-bottom:8px;font-size:1.5rem;">Commande enregistrée !</h3>
+          <p style="color:#7A7A72;font-size:0.95rem;">Merci ${escapeHtml(orderData.customer_name)} 🙏</p>
+        </div>
+        <div style="background:#fff; border:1px solid #E7E0D2; padding:15px; border-radius:10px; margin-bottom:20px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.9rem;"><span style="color:#7A7A72;">N° commande</span><strong>${escapeHtml(orderData.order_number)}</strong></div>
+          <div style="display:flex; justify-content:space-between; padding-top:10px; border-top:1px solid #E7E0D2; font-size:1rem;"><span style="color:#7A7A72;">Total</span><strong style="color:#2E5B3F; font-size:1.15rem;">${orderData.total.toLocaleString()} FCFA</strong></div>
+        </div>
+        <p style="color:#7A7A72; font-size:0.85rem; text-align:center; margin-bottom:15px; line-height:1.6;">
+          💬 Cliquez sur le bouton puis appuyez sur <strong>« Envoyer »</strong> dans WhatsApp.
+        </p>
+        <a href="${waUrl}" target="_blank" onclick="setTimeout(()=>{closeOrder(); location.reload();}, 500)"
+           style="display:block; background:#2E5B3F; color:#FAF7F0; padding:14px; border-radius:8px; text-decoration:none; font-weight:700; font-size:1rem; text-align:center;">
+          Confirmer la commande
+        </a>
+      </div>`;
+    cart = []; saveCart(); updateCartCount();
+  }
+
+  function showError(errorType, errorMsg, orderData) {
+    const c = document.getElementById('orderContent');
+    const waMessage = buildWhatsAppMessage(orderData);
+    const waUrl = `https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=${encodeURIComponent(waMessage)}`;
+    c.innerHTML = `
+      <div style="padding:20px;">
+        <h3 style="text-align:center;margin-bottom:15px;">Erreur de connexion</h3>
+        <div class="error-box"><strong>${escapeHtml(errorType)}</strong>${escapeHtml(errorMsg)}</div>
+        <p style="color:#7A7A72;font-size:0.9rem;margin-top:15px;text-align:center;">Réessayez ou envoyez directement par WhatsApp.</p>
+        <button class="btn-retry" onclick="retryOrder()">Réessayer l'envoi</button>
+        <button class="btn-wa-fallback" onclick="window.open('${waUrl.replace(/'/g, "\\'")}', '_blank')">Envoyer par WhatsApp</button>
+      </div>`;
+  }
+
+  function retryOrder() { if (!lastOrderData) return; sendOrder(lastOrderData); }
+
+  function buildWhatsAppMessage(order) {
+    let msg = `NOUVELLE COMMANDE\n\nN° : ${order.order_number}\n${order.customer_name}\n${order.customer_phone}\n${order.customer_address}\n\nArticles :\n`;
+    order.items.forEach(i => { msg += `- ${i.qty}x ${i.name} = ${(i.price * i.qty).toLocaleString()} F\n`; });
+    msg += `\nSous-total : ${order.subtotal.toLocaleString()} F\nLivraison : ${order.delivery_fee === 0 ? 'Gratuite' : order.delivery_fee.toLocaleString() + ' F'}\nTOTAL : ${order.total.toLocaleString()} F\n\nPaiement : ${order.payment_method}`;
+    if (order.notes) msg += `\n\nNotes : ${order.notes}`;
+    return msg;
+  }
+
+  function scrollToMenu() { document.getElementById('menu').scrollIntoView({ behavior: 'smooth' }); }
+
+  function showNotification(message) {
+    let toast = document.getElementById('notification-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'notification-toast';
+      toast.className = 'notification-toast';
+      document.getElementById('view-client').appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(toast._timeout);
+    toast._timeout = setTimeout(() => toast.classList.remove('show'), 2200);
+  }
+
+  Object.assign(window, {
+    openCart, closeCart, scrollToMenu, toggleFavorites, closeDishDetails, closeOrder,
+    submitOrder, filterCategory, openDishDetails, toggleFavorite, addToCart,
+    addToCartFromDetails, updateQty, removeFromCart, openOrder, retryOrder
+  });
+
+  document.addEventListener('click', (e) => {
+    if (e.target.classList?.contains('modal') && e.target.closest('#view-client')) e.target.classList.remove('active');
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && document.getElementById('view-client').classList.contains('active')) {
+      document.querySelectorAll('#view-client .modal').forEach(m => m.classList.remove('active'));
+    }
+  });
+
+  APP_AUTH.registerView('client', async () => {
+    const user = await APP_AUTH.requireRole('client');
+    if (!user) return;
+    currentAuthUser = user;
+    document.getElementById('accountLabel').textContent = user.full_name || user.email || 'Mon compte';
+    loadFavorites();
+    renderCategories();
+    renderDishes();
+    updateCartCount();
+    loadCart();
+    document.getElementById('searchInput').oninput = (e) => { searchTerm = e.target.value.trim().toLowerCase(); renderDishes(); };
+    document.getElementById('sortSelect').onchange = (e) => { sortMode = e.target.value; renderDishes(); };
+    initScrollAnimations();
+    initScrollProgress();
+    initHeaderScroll();
+    initBackToTop();
+    setTimeout(() => document.getElementById('page-loader').classList.add('hidden'), 400);
+  });
+})();
+</script>
+
+<!-- COOK VIEW -->
+<script>
+(function () {
+  const CONFIG = {
+    webhook: {
+      get_orders: window.APP_CONFIG.webhooks.kitchenOrders,
+      update_status: window.APP_CONFIG.webhooks.kitchenUpdate
+    },
+    refresh_interval_seconds: 15,
+    sound_alerts: true,
+    auto_refresh: true,
+    urgent_after_minutes: 15
+  };
+
+  const STATUSES = [
+    { id: 'new', label: 'Nouvelles', icon: '🆕' },
+    { id: 'preparing', label: 'En préparation', icon: '👨‍🍳' },
+    { id: 'ready', label: 'Prêtes', icon: '✅' },
+    { id: 'delivering', label: 'En livraison', icon: '🛵' }
+  ];
+
+  let orders = [];
+  let previousOrderIds = new Set();
+  const STATUS_OVERRIDES_KEY = 'richmond_food_status_overrides';
+  let statusOverrides = loadStatusOverrides();
+  let soundEnabled = true;
+  let clockTimer = null;
+  let refreshTimer = null;
+  let isFetchingOrders = false;
+  let firstLoad = true;
+
+  function loadStatusOverrides() {
+    try { return JSON.parse(localStorage.getItem(STATUS_OVERRIDES_KEY) || '{}'); }
+    catch (e) { return {}; }
+  }
+  function saveStatusOverrides() { localStorage.setItem(STATUS_OVERRIDES_KEY, JSON.stringify(statusOverrides)); }
+  function getOrderKey(order) { return String(order.order_number || order.id || ''); }
+
+  function applyStatusOverrides(serverOrders) {
+    let overridesChanged = false;
+    const merged = serverOrders.map(order => {
+      const key = getOrderKey(order);
+      const override = statusOverrides[key];
+      const serverStatus = order.state || order.status;
+      if (!override) return order;
+      if (serverStatus === override) { delete statusOverrides[key]; overridesChanged = true; return order; }
+      return { ...order, state: override };
+    });
+    if (overridesChanged) saveStatusOverrides();
+    return merged;
+  }
+
+  function startClock() {
+    updateClock();
+    if (clockTimer) clearInterval(clockTimer);
+    clockTimer = setInterval(updateClock, 1000);
+  }
+  function updateClock() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    const s = String(now.getSeconds()).padStart(2, '0');
+    document.getElementById('clock').textContent = `${h}:${m}:${s}`;
+    document.getElementById('infoTime').textContent = `${h}:${m}`;
+  }
+  function startAutoRefresh() {
+    if (refreshTimer) clearInterval(refreshTimer);
+    const intervalSeconds = Number(CONFIG.refresh_interval_seconds) || 15;
+    const refreshStatus = document.getElementById('refreshStatus');
+    if (!CONFIG.auto_refresh) { refreshStatus.textContent = '🔄 Mode manuel'; return; }
+    refreshStatus.textContent = `🔄 Actualisation auto : ${intervalSeconds}s`;
+    refreshTimer = setInterval(fetchOrders, intervalSeconds * 1000);
+  }
+  function manualRefresh() { showToast('🔄 Rafraîchissement...', 'success'); fetchOrders(); }
+
+  async function fetchOrders() {
+    if (isFetchingOrders) return;
+    isFetchingOrders = true;
+    const url = CONFIG.webhook.get_orders;
+    if (!url) { setOnline(false, 'Webhook kitchen-orders non configuré'); isFetchingOrders = false; return; }
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
+        body: JSON.stringify({ action: 'get_orders' })
+      });
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      const text = await response.text();
+      if (text.trim().startsWith('<')) throw new Error("Reçu du HTML au lieu de JSON");
+      const data = JSON.parse(text);
+      const newOrders = Array.isArray(data) ? data : (data.orders || data.data || []);
+      if (!firstLoad) detectNewOrders(newOrders);
+      firstLoad = false;
+      orders = applyStatusOverrides(newOrders);
+      renderBoard();
+      setOnline(true);
+      document.getElementById('lastUpdate').textContent = 'Dernière MAJ : ' + new Date().toLocaleTimeString('fr-FR');
+    } catch (e) {
+      console.error('Erreur kitchen-orders :', e.message);
+      setOnline(false, e.message);
+    } finally {
+      isFetchingOrders = false;
+    }
+  }
+
+  function detectNewOrders(newOrders) {
+    const currentIds = new Set(newOrders.map(o => o.id || o.order_number));
+    for (const id of currentIds) {
+      if (!previousOrderIds.has(id)) {
+        const order = newOrders.find(o => (o.id || o.order_number) === id);
+        if (order && (order.state === 'new' || !order.state)) onNewOrder(order);
+      }
+    }
+    previousOrderIds = currentIds;
+  }
+  function onNewOrder(order) {
+    document.getElementById('alertText').textContent = `#${order.order_number} • ${order.customer_name || 'Client'}`;
+    document.getElementById('alertOverlay').classList.add('show');
+    if (soundEnabled) playSound();
+    if (navigator.vibrate) navigator.vibrate([300, 100, 300]);
+  }
+  function playSound() {
+    try { const audio = document.getElementById('notifSound'); if (!audio) return; audio.currentTime = 0; audio.volume = 1; audio.play().catch(() => {}); }
+    catch (e) {}
+  }
+  function closeAlert() { document.getElementById('alertOverlay').classList.remove('show'); }
+
+  function renderBoard() {
+    const board = document.getElementById('board');
+    board.innerHTML = STATUSES.map(status => {
+      const statusOrders = orders.filter(o => (o.state || o.status || 'new') === status.id);
+      const hasMany = statusOrders.length > 2;
+      return `
+        <div class="column ${status.id}">
+          <div class="column-header">
+            <div class="column-title"><span class="column-icon">${status.icon}</span><span class="column-title-text">${status.label}</span></div>
+            <div class="column-count">${statusOrders.length}</div>
+          </div>
+          <div class="column-body" id="col-${status.id}">
+            ${statusOrders.length === 0
+              ? `<div class="empty-state"><div class="empty-icon">${status.icon}</div><div class="empty-text">Aucune commande</div></div>`
+              : statusOrders.map(o => renderOrderCard(o, status)).join('')}
+          </div>
+          ${hasMany ? `<div class="scroll-hint">↕ Faites défiler (${statusOrders.length})</div>` : ''}
+        </div>`;
+    }).join('');
+    updateStats();
+  }
+
+  function renderOrderCard(order, status) {
+    const orderNum = String(order.order_number || order.id || 'N/A');
+    const customer = escapeHtml(order.customer_name || 'Client');
+    const source = order.source || 'website';
+    const sourceLabel = source === 'website' ? '🌐 WEB' : '📱 WHATSAPP';
+    const sourceClass = source === 'website' ? 'source-website' : 'source-whatsapp';
+    const timeSince = getTimeSince(order.create_date || order.order_date);
+    const isUrgent = timeSince.minutes > (CONFIG.urgent_after_minutes || 15) && status.id !== 'ready';
+    let rawItems = order.items || order.order_lines || order.line_ids || [];
+    if (!Array.isArray(rawItems)) rawItems = [];
+    const items = rawItems.filter(i => i && typeof i === 'object');
+    const itemsHtml = items.length
+      ? items.map(i => `<div class="order-item"><div class="item-left"><span class="item-qty">${escapeHtml(i.quantity || i.qty || 1)}x</span><div style="flex:1;"><div class="item-name">${escapeHtml(i.dish_name || i.name || 'Article')}</div></div></div></div>`).join('')
+      : '<div style="text-align:center;color:#999;padding:10px;font-size:0.8rem;">Articles non détaillés</div>';
+
+    let actions = '';
+    if (status.id === 'new') actions = `<button class="btn-action btn-confirm" data-order-action="confirm" data-order-number="${escapeHtml(orderNum)}">✅ Confirmer</button>`;
+    else if (status.id === 'preparing') actions = `<button class="btn-action btn-ready" data-order-action="update" data-status="ready" data-order-number="${escapeHtml(orderNum)}">✅ Prête</button><button class="btn-action btn-back" data-order-action="update" data-status="new" data-order-number="${escapeHtml(orderNum)}">↩</button>`;
+    else if (status.id === 'ready') actions = `<button class="btn-action btn-deliver" data-order-action="update" data-status="delivering" data-order-number="${escapeHtml(orderNum)}">🛵 En livraison</button><button class="btn-action btn-back" data-order-action="update" data-status="preparing" data-order-number="${escapeHtml(orderNum)}">↩</button>`;
+    else if (status.id === 'delivering') actions = `<button class="btn-action btn-confirm" data-order-action="update" data-status="delivered" data-order-number="${escapeHtml(orderNum)}">✅ Livrée</button>`;
+    actions += `<button class="btn-action btn-delete" data-order-action="delete" data-order-number="${escapeHtml(orderNum)}">🗑️</button>`;
+
+    const payment = order.payment_method ? escapeHtml(String(order.payment_method).toUpperCase()) : '';
+    const total = Number(order.total);
+    const safeTotal = Number.isFinite(total) ? total.toLocaleString('fr-FR') : '0';
+    const phone = order.customer_phone ? escapeHtml(order.customer_phone) : '';
+    const address = order.customer_address ? escapeHtml(order.customer_address) : '';
+
+    return `
+      <div class="order-card ${status.id} ${isUrgent ? 'urgent' : ''}">
+        <div class="order-content">
+          <div class="order-header">
+            <div class="order-number">#${escapeHtml(orderNum)}</div>
+            <div class="order-source ${sourceClass}">${sourceLabel}</div>
+          </div>
+          <div class="order-time ${isUrgent ? 'urgent' : ''}"><span>⏱️</span><span>Il y a ${escapeHtml(timeSince.text)}</span>${isUrgent ? '<span>⚠️</span>' : ''}</div>
+          <div class="order-customer"><span>👤</span><span>${customer}</span></div>
+          ${phone || address ? `<div class="order-contact">${phone ? `📞 <strong>${phone}</strong><br>` : ''}${address ? `📍 ${address}` : ''}</div>` : ''}
+          <div class="order-items">${itemsHtml}</div>
+          <div class="order-total"><span class="order-total-label">Total</span><span class="order-total-value">${safeTotal} F</span></div>
+          ${payment ? `<div class="order-meta"><span class="meta-tag">💳 ${payment}</span></div>` : ''}
+        </div>
+        <div class="order-actions">${actions}</div>
+      </div>`;
+  }
+
+  function getTimeSince(dateStr) {
+    if (!dateStr) return { text: 'N/A', minutes: 0 };
+    const ts = Date.parse(dateStr);
+    if (!Number.isFinite(ts)) return { text: 'N/A', minutes: 0 };
+    const diffMins = Math.max(0, Math.floor((Date.now() - ts) / 60000));
+    if (diffMins < 1) return { text: '< 1 min', minutes: 0 };
+    if (diffMins < 60) return { text: `${diffMins} min`, minutes: diffMins };
+    const hours = Math.floor(diffMins / 60);
+    const mins = diffMins % 60;
+    return { text: `${hours}h${mins > 0 ? mins + 'min' : ''}`, minutes: diffMins };
+  }
+
+  function updateStats() {
+    const getStatus = order => order.state || order.status || 'new';
+    document.getElementById('statNew').textContent = orders.filter(o => getStatus(o) === 'new').length;
+    document.getElementById('statPrep').textContent = orders.filter(o => getStatus(o) === 'preparing').length;
+    document.getElementById('statReady').textContent = orders.filter(o => getStatus(o) === 'ready').length;
+    document.getElementById('infoTotal').textContent = orders.length;
+  }
+
+  async function confirmOrder(orderNumber, btn) {
+    if (!confirm(`Confirmer la commande #${orderNumber} ?`)) return;
+    if (btn) { btn.disabled = true; btn.textContent = '⏳...'; }
+    try {
+      await updateOrderState(orderNumber, 'preparing');
+      statusOverrides[String(orderNumber)] = 'preparing';
+      saveStatusOverrides();
+      showToast(`✅ Commande #${orderNumber} → En préparation`, 'success');
+      await fetchOrders();
+    } catch (e) {
+      console.error(e);
+      showToast('❌ Erreur', 'error');
+      await fetchOrders();
+    } finally { if (btn) btn.disabled = false; }
+  }
+
+  async function deleteOrder(orderNumber, btn) {
+    if (!confirm(`Annuler la commande #${orderNumber} ?`)) return;
+    if (btn) { btn.disabled = true; btn.textContent = '⏳'; }
+    try {
+      await updateOrderState(orderNumber, 'cancelled');
+      delete statusOverrides[String(orderNumber)];
+      saveStatusOverrides();
+      orders = orders.filter(order => getOrderKey(order) !== String(orderNumber));
+      renderBoard();
+      showToast(`🗑️ Commande #${orderNumber} annulée`, 'success');
+    } catch (e) {
+      console.error(e);
+      showToast("❌ Impossible d'annuler", 'error');
+      if (btn) { btn.disabled = false; btn.textContent = '🗑️'; }
+    }
+  }
+
+  async function updateStatus(orderNumber, newStatus, btn) {
+    const messages = {
+      preparing: `Confirmer #${orderNumber} ?`,
+      ready: `#${orderNumber} est-elle prête ?`,
+      delivering: `Envoyer #${orderNumber} en livraison ?`,
+      delivered: `Confirmer la livraison de #${orderNumber} ?`,
+      new: `Remettre #${orderNumber} en nouvelle ?`
+    };
+    if (!confirm(messages[newStatus] || 'Changer le statut ?')) return;
+    if (btn) { btn.disabled = true; btn.textContent = '⏳...'; }
+    try {
+      await updateOrderState(orderNumber, newStatus);
+      statusOverrides[String(orderNumber)] = newStatus;
+      saveStatusOverrides();
+      const labels = { preparing: 'En préparation', ready: 'Prête', delivering: 'En livraison', delivered: 'Livrée', new: 'Nouvelle' };
+      showToast(`✅ #${orderNumber} → ${labels[newStatus] || newStatus}`, 'success');
+      await fetchOrders();
+    } catch (e) {
+      console.error(e);
+      showToast('❌ Erreur', 'error');
+      await fetchOrders();
+    } finally { if (btn) btn.disabled = false; }
+  }
+
+  async function updateOrderState(orderNumber, state) {
+    const url = CONFIG.webhook.update_status;
+    if (!url) throw new Error('URL non configurée');
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
+      body: JSON.stringify({ order_number: orderNumber, state })
+    });
+    if (!response.ok) throw new Error('HTTP ' + response.status);
+    await response.text();
+  }
+
+  function setOnline(online, reason = '') {
+    const badge = document.getElementById('statusBadge');
+    const text = document.getElementById('statusText');
+    const lastUpdate = document.getElementById('lastUpdate');
+    if (online) { badge.classList.remove('offline'); text.textContent = 'En ligne'; }
+    else { badge.classList.add('offline'); text.textContent = 'Hors ligne'; lastUpdate.textContent = reason ? `❌ ${reason}` : 'Connexion indisponible'; }
+  }
+
+  function toggleSound() {
+    soundEnabled = !soundEnabled;
+    updateSoundBtn();
+    showToast(soundEnabled ? '🔊 Son activé' : '🔇 Son coupé', 'success');
+  }
+  function updateSoundBtn() { document.getElementById('soundBtn').textContent = soundEnabled ? '🔊' : '🔇'; }
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+    else document.exitFullscreen().catch(() => {});
+  }
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + type;
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  document.getElementById('board').addEventListener('click', event => {
+    const button = event.target.closest('button[data-order-action]');
+    if (!button) return;
+    const { orderNumber, orderAction, status } = button.dataset;
+    if (orderAction === 'confirm') confirmOrder(orderNumber, button);
+    else if (orderAction === 'update') updateStatus(orderNumber, status, button);
+    else if (orderAction === 'delete') deleteOrder(orderNumber, button);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (!document.getElementById('view-cook').classList.contains('active')) return;
+    if (e.key === 'F5') { e.preventDefault(); manualRefresh(); }
+    if (e.key === 'Escape') closeAlert();
+    if (e.ctrlKey && e.key === 'f') { e.preventDefault(); toggleFullscreen(); }
+  });
+
+  Object.assign(window, { closeAlert, toggleSound, toggleFullscreen, manualRefresh });
+
+  APP_AUTH.registerView('cook', async () => {
+    const user = await APP_AUTH.requireRole('cook');
+    if (!user) return;
+    document.getElementById('cookAccount').textContent = user.full_name || user.email || 'Cuisinier';
+    soundEnabled = CONFIG.sound_alerts;
+    updateSoundBtn();
+    startClock();
+    renderBoard();
+    fetchOrders();
+    startAutoRefresh();
+    setTimeout(() => document.getElementById('loading').classList.add('hide'), 500);
+    APP_AUTH.registerCleanup(() => {
+      if (clockTimer) clearInterval(clockTimer);
+      if (refreshTimer) clearInterval(refreshTimer);
+      clockTimer = null; refreshTimer = null;
+    });
+  });
+})();
+</script>
+
+<!-- DRIVER VIEW -->
+<script>
+(function () {
+  let driver = null;
+  const message = document.getElementById('statusMessage');
+  const ordersContainer = document.getElementById('orders');
+
+  async function loadDeliveries() {
+    if (!driver) return;
+    if (!APP_CONFIG.webhooks.driverOrders) {
+      message.textContent = "🚧 Fonctionnalité livreur bientôt disponible.";
+      ordersContainer.innerHTML = '<div class="empty">Contacte le restaurant pour activer.</div>';
+      return;
+    }
+    message.textContent = 'Chargement des livraisons…';
+    ordersContainer.replaceChildren();
+    try {
+      const result = await APP_AUTH.callWebhook(APP_CONFIG.webhooks.driverOrders, {
+        action: 'get_deliveries',
+        driver_id: driver.id
+      });
+      const deliveries = Array.isArray(result) ? result : (result.deliveries || result.orders || result.data || []);
+      if (!Array.isArray(deliveries)) throw new Error('Le webhook doit renvoyer une liste.');
+      renderDeliveries(deliveries);
+      message.textContent = `${deliveries.length} livraison${deliveries.length === 1 ? '' : 's'} attribuée${deliveries.length === 1 ? '' : 's'}.`;
+    } catch (error) {
+      console.error('Erreur livraisons :', error);
+      message.textContent = `Erreur : ${error.message}`;
+    }
+  }
+
+  function renderDeliveries(deliveries) {
+    if (deliveries.length === 0) {
+      ordersContainer.innerHTML = '<div class="empty">Aucune livraison pour le moment.</div>';
+      return;
+    }
+    ordersContainer.innerHTML = deliveries.map(order => {
+      let rawItems = order.items || order.order_lines || order.line_ids || [];
+      if (!Array.isArray(rawItems)) rawItems = [];
+      const items = rawItems.filter(item => item && typeof item === 'object');
+      const orderNumber = order.order_number || order.id || 'N/A';
+      return `<article class="order-card">
+        <div class="order-top"><h2>Commande #${escapeHtml(orderNumber)}</h2><span class="status">À livrer</span></div>
+        <p><strong>Client :</strong> ${escapeHtml(order.customer_name || 'Client')}</p>
+        ${order.customer_phone ? `<p><strong>Téléphone :</strong> <a href="tel:${escapeHtml(order.customer_phone)}">${escapeHtml(order.customer_phone)}</a></p>` : ''}
+        <p><strong>Adresse :</strong> ${escapeHtml(order.customer_address || 'Non renseignée')}</p>
+        <div class="items">${items.length ? items.map(item =>
+          `<p>${escapeHtml(item.quantity || item.qty || 1)} × ${escapeHtml(item.dish_name || item.name || 'Article')}</p>`
+        ).join('') : '<p>Aucun article indiqué.</p>'}</div>
+        <div class="order-meta"><span>Total</span><strong>${escapeHtml(Number(order.total || 0).toLocaleString('fr-FR'))} FCFA</strong></div>
+        <button class="complete" type="button" data-order-number="${escapeHtml(orderNumber)}">Confirmer la livraison</button>
+      </article>`;
+    }).join('');
+  }
+
+  ordersContainer.addEventListener('click', async event => {
+    const button = event.target.closest('[data-order-number]');
+    if (!button) return;
+    const orderNumber = button.dataset.orderNumber;
+    button.disabled = true;
+    button.textContent = 'Mise à jour…';
+    if (!APP_CONFIG.webhooks.driverUpdate) {
+      message.textContent = "🚧 Le webhook 'driver-update' doit être créé dans n8n.";
+      button.disabled = false;
+      button.textContent = 'Confirmer la livraison';
+      return;
+    }
+    try {
+      await APP_AUTH.callWebhook(APP_CONFIG.webhooks.driverUpdate, {
+        action: 'update_delivery_status',
+        order_number: orderNumber,
+        driver_id: driver.id,
+        state: 'delivered'
+      });
+      await loadDeliveries();
+    } catch (error) {
+      console.error('Erreur update :', error);
+      message.textContent = `Erreur : ${error.message}`;
+      button.disabled = false;
+      button.textContent = 'Confirmer la livraison';
+    }
+  });
+
+  Object.assign(window, { loadDeliveries });
+
+  APP_AUTH.registerView('driver', async () => {
+    driver = await APP_AUTH.requireRole('driver');
+    if (!driver) return;
+    document.getElementById('driverName').textContent = driver.full_name || driver.email || 'Livreur';
+    await loadDeliveries();
+  });
+})();
+</script>
+
+<!-- ROUTAGE INITIAL -->
+<script>
+(async () => {
+  const user = APP_AUTH.getCurrentUser();
+  const role = user && APP_AUTH.roleFor(user);
+  const target = ['client', 'cook', 'driver'].includes(role) ? role : 'auth';
+  APP_AUTH.showView(target);
+})();
+</script>
+
+</body>
+</html>
