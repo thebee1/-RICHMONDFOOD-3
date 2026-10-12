@@ -174,6 +174,34 @@ body[data-view="cook"] { overflow: hidden; }
 #view-client .loader-logo { font-size: 2rem; font-weight: 800; color: var(--dark); letter-spacing: 4px; }
 #view-client .loader-logo span { color: var(--gold); }
 #view-client .loader-spinner { width: 50px; height: 50px; border: 4px solid var(--line); border-top-color: var(--gold); border-radius: 50%; animation: c-rotate360 0.8s linear infinite; }
+
+/* Dashboard client */
+#view-client .cd-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
+#view-client .cd-stat { background: linear-gradient(135deg, #FAF7F0, #F4EFE4); padding: 16px; border-radius: 10px; text-align: center; border-top: 3px solid var(--gold); }
+#view-client .cd-stat.green { border-top-color: var(--green); }
+#view-client .cd-stat.blue { border-top-color: #3D5A6C; }
+#view-client .cd-stat.purple { border-top-color: #6B4E8E; }
+#view-client .cd-stat-label { font-size: 0.75rem; color: var(--gray); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 6px; }
+#view-client .cd-stat-value { font-size: 1.5rem; font-weight: 800; color: var(--dark); }
+#view-client .cd-order { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid var(--line); gap: 10px; }
+#view-client .cd-order:hover { background: #FAF7F0; }
+#view-client .cd-order-info { flex: 1; }
+#view-client .cd-order-num { font-weight: 700; font-size: 0.9rem; }
+#view-client .cd-order-date { font-size: 0.78rem; color: var(--gray); margin-top: 2px; }
+#view-client .cd-order-right { text-align: right; }
+#view-client .cd-order-total { font-weight: 700; color: var(--green); font-size: 0.95rem; }
+#view-client .cd-badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-top: 4px; }
+#view-client .cd-badge.pending { background: #F7E9E5; color: #B0442B; }
+#view-client .cd-badge.preparing { background: #FCF5E3; color: #8A6D1F; }
+#view-client .cd-badge.ready { background: #EAF3EC; color: var(--green); }
+#view-client .cd-badge.delivering { background: #E8EEF2; color: #3D5A6C; }
+#view-client .cd-badge.delivered { background: #E5EFE8; color: #1E5B3F; }
+#view-client .cd-badge.cancelled { background: #EDE8E5; color: var(--gray); }
+#view-client .cd-empty { text-align: center; padding: 30px; color: var(--gray); }
+#view-client .cd-tab-bar { display: flex; gap: 8px; margin-bottom: 20px; background: #FAF7F0; padding: 5px; border-radius: 10px; }
+#view-client .cd-tab { flex: 1; padding: 10px; border: none; background: transparent; border-radius: 7px; font-family: inherit; font-weight: 600; cursor: pointer; color: var(--gray); font-size: 0.9rem; }
+#view-client .cd-tab.active { background: var(--dark); color: #fff; }
+
 @media (max-width: 768px) {
   #view-client .container { padding-left: 16px; padding-right: 16px; }
   #view-client .nav { padding: 12px 16px; }
@@ -396,6 +424,8 @@ body[data-view="cook"] { overflow: hidden; }
       <div class="logo"><div>RICHMOND<span>FOOD</span></div></div>
       <div class="nav-actions">
         <span class="account-label" id="accountLabel"></span>
+        <button class="cart-btn" type="button" onclick="openClientDashboard()">📊 Mon compte</button>
+        <button class="cart-btn" type="button" onclick="openClientProfile()">⚙️ Profil</button>
         <button class="cart-btn" type="button" onclick="APP_AUTH.logout()">Déconnexion</button>
         <button class="cart-btn" type="button" onclick="openCart()">Panier <span class="cart-count" id="cartCount">0</span></button>
       </div>
@@ -441,6 +471,8 @@ body[data-view="cook"] { overflow: hidden; }
   <div class="modal" id="cartModal"><div class="modal-content"><div class="modal-header"><h2 class="modal-title">Votre panier</h2><button class="close-btn" onclick="closeCart()">✕</button></div><div id="cartContent"></div></div></div>
   <div class="modal" id="dishModal"><div class="modal-content"><div class="modal-header"><h2 class="modal-title">Détails du plat</h2><button class="close-btn" onclick="closeDishDetails()">✕</button></div><div id="dishDetailsContent"></div></div></div>
   <div class="modal" id="orderModal"><div class="modal-content"><div class="modal-header"><h2 class="modal-title">Finaliser la commande</h2><button class="close-btn" onclick="closeOrder()">✕</button></div><div id="orderContent"></div></div></div>
+  <div class="modal" id="dashboardModal"><div class="modal-content"><div class="modal-header"><h2 class="modal-title">📊 Mon compte</h2><button class="close-btn" onclick="closeClientDashboard()">✕</button></div><div id="dashboardContent"></div></div></div>
+  <div class="modal" id="profileModal"><div class="modal-content"><div class="modal-header"><h2 class="modal-title">⚙️ Mon profil</h2><button class="close-btn" onclick="closeClientProfile()">✕</button></div><div id="profileContent"></div></div></div>
 
   <footer>
     <div class="footer-grid">
@@ -516,10 +548,6 @@ body[data-view="cook"] { overflow: hidden; }
 <script>
 /* ============================================================
    CONFIG
-   ------------------------------------------------------------
-   Remplace les URLs ngrok ci-dessous par les tiennes.
-   Les webhooks /auth-register et /auth-login doivent exister
-   dans n8n (voir notes à la fin du fichier).
    ============================================================ */
 window.APP_CONFIG = {
   webhooks: {
@@ -528,6 +556,8 @@ window.APP_CONFIG = {
     order:         'https://deploy-showoff-engaging.ngrok-free.dev/webhook/restaurant-order',
     kitchenOrders: 'https://deploy-showoff-engaging.ngrok-free.dev/webhook/kitchen-orders',
     kitchenUpdate: 'https://deploy-showoff-engaging.ngrok-free.dev/webhook/kitchen-update',
+    clientOrders:  'https://deploy-showoff-engaging.ngrok-free.dev/webhook/client-orders',
+    clientUpdate:  'https://deploy-showoff-engaging.ngrok-free.dev/webhook/client-update',
     driverOrders: '',
     driverUpdate: ''
   },
@@ -537,7 +567,6 @@ window.APP_CONFIG = {
   requestTimeout: 15000
 };
 
-/* Helpers globaux */
 function escapeHtml(value = '') {
   return String(value)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -546,7 +575,7 @@ function escapeHtml(value = '') {
 function formatPrice(value) { return Number(value || 0).toLocaleString('fr-FR') + ' F'; }
 
 /* ============================================================
-   APP_AUTH — sans Supabase. Utilise n8n + localStorage.
+   APP_AUTH
    ============================================================ */
 (function () {
   const SESSION_KEY = 'richmond_session';
@@ -558,17 +587,9 @@ function formatPrice(value) { return Number(value || 0).toLocaleString('fr-FR') 
     try { return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); }
     catch (e) { return null; }
   }
-
-  function saveSession(user) {
-    localStorage.setItem(SESSION_KEY, JSON.stringify(user));
-  }
-
-  function clearSession() {
-    localStorage.removeItem(SESSION_KEY);
-  }
-
+  function saveSession(user) { localStorage.setItem(SESSION_KEY, JSON.stringify(user)); }
+  function clearSession() { localStorage.removeItem(SESSION_KEY); }
   function roleFor(user) { return user?.role || ''; }
-
   function isAuthenticated() { return !!getCurrentUser(); }
 
   function showView(name) {
@@ -584,13 +605,9 @@ function formatPrice(value) { return Number(value || 0).toLocaleString('fr-FR') 
       try { init(); } catch (e) { console.error('Init view ' + name + ' :', e); }
     }
   }
-
   function registerView(name, initFn) { viewInit[name] = initFn; }
   function registerCleanup(fn) { viewCleanups.push(fn); }
 
-  /* ----------------------------------------------------------
-     Appel générique d'un webhook n8n
-     ---------------------------------------------------------- */
   async function callWebhook(url, payload) {
     if (!url) throw new Error('URL de webhook n8n manquante dans APP_CONFIG.');
     const controller = new AbortController();
@@ -613,7 +630,7 @@ function formatPrice(value) { return Number(value || 0).toLocaleString('fr-FR') 
         throw new Error(`n8n a répondu HTTP ${response.status}${text ? ' : ' + text.slice(0, 200) : ''}`);
       }
       if (text.trim().startsWith('<')) {
-        throw new Error("n8n a renvoyé du HTML au lieu de JSON. Vérifie que ngrok-skip-browser-warning est bien pris en compte (interstitiel ngrok).");
+        throw new Error("n8n a renvoyé du HTML au lieu de JSON. Vérifie que ngrok-skip-browser-warning est bien pris en compte.");
       }
       try { return JSON.parse(text); }
       catch (e) { return { raw: text }; }
@@ -624,11 +641,6 @@ function formatPrice(value) { return Number(value || 0).toLocaleString('fr-FR') 
     }
   }
 
-  /* ----------------------------------------------------------
-     Inscription : POST /auth-register
-     Payload : { email, password, full_name, phone, role }
-     Réponse attendue : { success: true, user: {id, email, full_name, phone, role} }
-     ---------------------------------------------------------- */
   async function register(payload) {
     const url = window.APP_CONFIG.webhooks.authRegister;
     if (!url) throw new Error("Le webhook 'auth-register' n'est pas configuré.");
@@ -641,11 +653,6 @@ function formatPrice(value) { return Number(value || 0).toLocaleString('fr-FR') 
     return user;
   }
 
-  /* ----------------------------------------------------------
-     Connexion : POST /auth-login
-     Payload : { email, password }
-     Réponse attendue : { success: true, user: {id, email, full_name, phone, role} }
-     ---------------------------------------------------------- */
   async function login(email, password) {
     const url = window.APP_CONFIG.webhooks.authLogin;
     if (!url) throw new Error("Le webhook 'auth-login' n'est pas configuré.");
@@ -1266,10 +1273,166 @@ function formatPrice(value) { return Number(value || 0).toLocaleString('fr-FR') 
     toast._timeout = setTimeout(() => toast.classList.remove('show'), 2200);
   }
 
+  /* ═══════════════════════════════════════════════════════════
+     DASHBOARD CLIENT
+     ═══════════════════════════════════════════════════════════ */
+  async function openClientDashboard() {
+    const user = currentAuthUser;
+    if (!user) return;
+    const modal = document.getElementById('dashboardModal');
+    const content = document.getElementById('dashboardContent');
+    content.innerHTML = `<div style="text-align:center;padding:40px;"><div class="loader-spinner" style="margin:0 auto;"></div><p style="margin-top:14px;color:#7A7A72;">Chargement de vos commandes...</p></div>`;
+    modal.classList.add('active');
+
+    try {
+      const result = await APP_AUTH.callWebhook(window.APP_CONFIG.webhooks.clientOrders, {
+        client_id: user.id,
+        client_phone: user.phone
+      });
+      const orders = result.orders || [];
+      const stats = result.stats || { total_orders: 0, total_spent: 0, active_orders: 0 };
+      const STATE_LABELS = {
+        pending: 'Nouvelle', preparing: 'En préparation', ready: 'Prête',
+        delivering: 'En livraison', delivered: 'Livrée', cancelled: 'Annulée'
+      };
+      const activeOrders = orders.filter(o => ['pending','preparing','ready','delivering'].includes(o.state));
+
+      content.innerHTML = `
+        <div class="cd-tab-bar">
+          <button class="cd-tab active" onclick="switchCdTab(event,'overview')">Vue d'ensemble</button>
+          <button class="cd-tab" onclick="switchCdTab(event,'history')">Historique</button>
+        </div>
+        <div id="cd-tab-overview">
+          <div class="cd-stats">
+            <div class="cd-stat green"><div class="cd-stat-label">Commandes</div><div class="cd-stat-value">${stats.total_orders}</div></div>
+            <div class="cd-stat"><div class="cd-stat-label">Total dépensé</div><div class="cd-stat-value">${Number(stats.total_spent).toLocaleString('fr-FR')} F</div></div>
+            <div class="cd-stat blue"><div class="cd-stat-label">En cours</div><div class="cd-stat-value">${stats.active_orders}</div></div>
+          </div>
+          <h3 style="font-size:1rem;margin-bottom:12px;margin-top:20px;">🕐 Commandes en cours</h3>
+          ${activeOrders.length
+            ? activeOrders.map(o => `
+              <div class="cd-order">
+                <div class="cd-order-info">
+                  <div class="cd-order-num">#${escapeHtml(o.order_number)}</div>
+                  <div class="cd-order-date">${new Date(o.date).toLocaleString('fr-FR')}</div>
+                </div>
+                <div class="cd-order-right">
+                  <div class="cd-order-total">${Number(o.total).toLocaleString('fr-FR')} F</div>
+                  <span class="cd-badge ${o.state}">${STATE_LABELS[o.state] || o.state}</span>
+                </div>
+              </div>`).join('')
+            : '<div class="cd-empty">Aucune commande en cours 🎉</div>'}
+        </div>
+        <div id="cd-tab-history" style="display:none;">
+          <h3 style="font-size:1rem;margin-bottom:12px;">📋 Toutes mes commandes</h3>
+          ${orders.length
+            ? orders.map(o => `
+              <div class="cd-order">
+                <div class="cd-order-info">
+                  <div class="cd-order-num">#${escapeHtml(o.order_number)}</div>
+                  <div class="cd-order-date">${new Date(o.date).toLocaleString('fr-FR')}</div>
+                </div>
+                <div class="cd-order-right">
+                  <div class="cd-order-total">${Number(o.total).toLocaleString('fr-FR')} F</div>
+                  <span class="cd-badge ${o.state}">${STATE_LABELS[o.state] || o.state}</span>
+                </div>
+              </div>`).join('')
+            : '<div class="cd-empty">Aucune commande pour le moment</div>'}
+        </div>
+      `;
+    } catch (error) {
+      content.innerHTML = `<div class="error-box"><strong>Erreur de chargement</strong>${escapeHtml(error.message)}</div>`;
+    }
+  }
+  function closeClientDashboard() {
+    document.getElementById('dashboardModal').classList.remove('active');
+  }
+  function switchCdTab(event, tab) {
+    document.querySelectorAll('.cd-tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById('cd-tab-overview').style.display = tab === 'overview' ? 'block' : 'none';
+    document.getElementById('cd-tab-history').style.display = tab === 'history' ? 'block' : 'none';
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     PROFIL CLIENT
+     ═══════════════════════════════════════════════════════════ */
+  function openClientProfile() {
+    const user = currentAuthUser;
+    if (!user) return;
+    const modal = document.getElementById('profileModal');
+    const content = document.getElementById('profileContent');
+    content.innerHTML = `
+      <form id="profileForm" onsubmit="submitProfile(event)">
+        <div class="form-group"><label>Nom complet *</label><input type="text" id="profileName" required value="${escapeHtml(user.full_name || '')}"></div>
+        <div class="form-group">
+          <label>Téléphone (WhatsApp) *</label>
+          <input type="tel" id="profilePhone" required value="${escapeHtml(user.phone || '')}" placeholder="07 / 05 / 01 suivi de 8 chiffres">
+          <div class="form-hint" id="profilePhoneHint">Format : 07 / 05 / 01 suivi de 8 chiffres</div>
+        </div>
+        <div class="form-group"><label>Adresse e-mail *</label><input type="email" id="profileEmail" required value="${escapeHtml(user.email || '')}"></div>
+        <div class="form-group"><label>Adresse de livraison</label><textarea id="profileAddress" rows="3" placeholder="Cocody, Angré 8e tranche...">${escapeHtml(user.address || '')}</textarea></div>
+        <div style="border-top:1px solid #E7E0D2;padding-top:20px;margin-top:20px;">
+          <p style="font-size:0.85rem;color:#7A7A72;margin-bottom:14px;">🔒 Laisser vide pour ne pas changer de mot de passe</p>
+          <div class="form-group"><label>Nouveau mot de passe</label><input type="password" id="profilePassword" minlength="6" placeholder="••••••••"></div>
+        </div>
+        <button type="submit" class="btn-submit" id="profileSubmitBtn">💾 Enregistrer les modifications</button>
+      </form>`;
+    modal.classList.add('active');
+    const phoneInput = document.getElementById('profilePhone');
+    if (phoneInput) {
+      phoneInput.addEventListener('input', (e) => {
+        const hint = document.getElementById('profilePhoneHint');
+        const clean = e.target.value.replace(/\D/g, '');
+        if (!clean) { hint.textContent = 'Format : 07 / 05 / 01 suivi de 8 chiffres'; hint.className = 'form-hint'; return; }
+        if (/^0(1|5|7)\d{8}$/.test(clean) || /^2250(1|5|7)\d{8}$/.test(clean)) {
+          hint.textContent = '✅ Numéro valide'; hint.className = 'form-hint';
+          e.target.classList.remove('input-error');
+        } else {
+          hint.textContent = '❌ Numéro invalide'; hint.className = 'form-hint error';
+          e.target.classList.add('input-error');
+        }
+      });
+    }
+  }
+  function closeClientProfile() {
+    document.getElementById('profileModal').classList.remove('active');
+  }
+  async function submitProfile(event) {
+    event.preventDefault();
+    const user = currentAuthUser;
+    const btn = document.getElementById('profileSubmitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Enregistrement...';
+    const name = document.getElementById('profileName').value.trim();
+    const phone = document.getElementById('profilePhone').value.trim();
+    const email = document.getElementById('profileEmail').value.trim();
+    const address = document.getElementById('profileAddress').value.trim();
+    try {
+      const result = await APP_AUTH.callWebhook(window.APP_CONFIG.webhooks.clientUpdate, {
+        client_id: user.id, name, phone, email, address
+      });
+      if (result.success === false || result.error) throw new Error(result.error || 'Échec de la mise à jour');
+      const newUser = { ...user, full_name: name, phone, email, address };
+      localStorage.setItem('richmond_session', JSON.stringify(newUser));
+      currentAuthUser = newUser;
+      document.getElementById('accountLabel').textContent = name;
+      closeClientProfile();
+      showNotification('✅ Profil mis à jour avec succès');
+    } catch (error) {
+      alert('❌ Erreur : ' + error.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '💾 Enregistrer les modifications';
+    }
+  }
+
   Object.assign(window, {
     openCart, closeCart, scrollToMenu, toggleFavorites, closeDishDetails, closeOrder,
     submitOrder, filterCategory, openDishDetails, toggleFavorite, addToCart,
-    addToCartFromDetails, updateQty, removeFromCart, openOrder, retryOrder
+    addToCartFromDetails, updateQty, removeFromCart, openOrder, retryOrder,
+    openClientDashboard, closeClientDashboard, switchCdTab,
+    openClientProfile, closeClientProfile, submitProfile
   });
 
   document.addEventListener('click', (e) => {
